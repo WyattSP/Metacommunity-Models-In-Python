@@ -18,10 +18,35 @@ root.minsize(500,500)
 root.maxsize(1500,1000)
 root.geometry("1250x750")
 
+# Create Input Frame
+input_frame = Frame(root, width = 200, height = 200, bg = "lightgrey")
+input_frame.grid(row=0, column=0, padx=10, pady=5,sticky=E)
+
+# Create Landscape Grid Frame
+Landscape_frame = Frame(root, width = 900, height = 750, bg = "teal")
+Landscape_frame.grid(row=0, column=10, padx=10, pady=5)
+
 # Internal functions
+def get_nrow():
+    row = nrow.get()
+
+def get_ncol():
+    col = ncol.get()
+
 # Create numpy grid
-def create_grid(nrow,ncol):
-    print("Generate")
+def create_grid():
+    row = get_nrow()
+    col = get_ncol()
+    textMatrix = []
+    for r in np.arange(1,row):
+        textRow = []
+        for c in np.arange(1,col):
+            variable = StringVar()
+            entry = Entry(Landscape_frame, textvariable=variable)
+            entry.grid(row=r, column=c)
+            textRow.append(variable)
+        textMatrix.append(textRow)
+    return textMatrix
 
 # Assign 1 value to grid cell if selected
 def assign_grid_values(nrow,ncol):
@@ -30,10 +55,6 @@ def assign_grid_values(nrow,ncol):
 # Save function
 def save_grid(nrow,ncol):
     print("Landscape Saved")
-
-# Create Input Frame
-input_frame = Frame(root, width = 200, height = 200, bg = "lightgrey")
-input_frame.grid(row=0, column=0, padx=10, pady=5,sticky=E)
 
 # Assign user inputs
 input_section = Label(input_frame, text = "Initial Landscape Parameters:", bg = "white")
@@ -53,17 +74,12 @@ savepath = Entry(input_frame, bd=3)
 savepath.grid(row=4, column=1, padx=5, pady=5)
 
 # Add generate grid button
-generate_land = Button(input_frame, text = "Generate Landscape")
+generate_land = Button(input_frame, text = "Generate Landscape", command = create_grid())
 generate_land.grid(column=1,row = 5)
 
 # Add save button
 save = Button(input_frame, text = "Save Landscape")
 save.grid(column=1, row = 6)
-
-# Create Landscape Grid Frame
-input_frame = Frame(root, width = 900, height = 750, bg = "teal")
-input_frame.grid(row=0, column=10, padx=10, pady=5)
-
 
 # Initalize Window
 root.mainloop()
