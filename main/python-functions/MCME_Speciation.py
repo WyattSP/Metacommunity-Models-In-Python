@@ -20,11 +20,12 @@ def MCME(time_in,
          max_growth_r,
          speciation_rate,
          alpha_matrix_ini,
-         distance_matrix_ini,
+         distance_matrix,
          climate_input,
          niche_optimum_ini,
          dispersal_rate_ini,
-         niche_breadth_ini):
+         niche_breadth_ini,
+         end_member):
 
     #########################
     #     Function inputs   #
@@ -41,7 +42,7 @@ def MCME(time_in,
 
     # Import landscape
     #distance_matrix = landscape_configuration
-    distance_matrix = distance_matrix_ini
+    distance_matrix = distance_matrix
     M = distance_matrix.shape[0]
 
     # Import climate
@@ -76,7 +77,7 @@ def MCME(time_in,
     N = np.random.poisson(0.5, (M, S)) * 1.0
 
     # Save interval
-    samp_V = np.arange(0, simulation_time + 1, 20, dtype = int)
+    samp_V = np.arange(0, simulation_time + 1, 10, dtype = int)
 
     # Intialize save lists
     N_save = list()
@@ -95,11 +96,12 @@ def MCME(time_in,
     #########################
     #     Seeding Model     #
     #########################
+    
     # Seed local patches randomly every 10 steps
-    # No chance for speciation during seeding
+    # No chance for speciation or evolution during seeding
     if seed_time > 0:
         # Set initial static environment and growth rate
-        x_ini = np.repeat(climate[:, 0], S).reshape(M, S)
+        x_ini = np.repeat(climate[0, :], S).reshape(M, S)
         r_ini = r * np.exp(-((z - x_ini) / (2.0 * sigma_niche)) ** 2.0)
 
         seed_V = np.arange(0 + seed_step - 1, seed_time + seed_step - 1, seed_step, dtype = int)
@@ -119,23 +121,29 @@ def MCME(time_in,
             # Emigration
             emigrants = MCME_Functions.get_emigration(N, dispersal_rate, alpha_matrix)
             # Immigration
-            immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants)
+            immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025)
             # Substract emigrants and add immigrants
             N -= emigrants
             N += immigrants
 
             counter += 1 # Remomve for Cluster
         print("Seed: %d" % counter) # Remomve for Cluster
+        
     #########################
     #     Burn in Model     #
     #########################
+    
     if burn_in > 0:
         # Burn in loop
         for b in range(0, burn_in):
+            # Update z
+            z = MCME_Functions.trait_frequnecy_homonization(z, N)
+            # Find r
+            r_burnin = r * np.exp(-((z - x_ini) / (2.0 * sigma_niche)) ** 2.0)
             # Population Dynamics with static Env
             density = N @ alpha_matrix
             # Competition Model
-            lambda_vector = r_ini * N * (1.0 / (1.0 + density))
+            lambda_vector = r_burnin * N * (1.0 / (1.0 + density))
             lambda_vector[lambda_vector < 0.0] = 0.0
             # Random Death
             N = [np.random.poisson(l) for l in lambda_vector.flatten()]
@@ -143,10 +151,13 @@ def MCME(time_in,
             # Emigration
             emigrants = MCME_Functions.get_emigration(N, dispersal_rate, alpha_matrix)
             # Immigration
-            immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants)
+            immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025)
             # Substract emigrants and add immigrants
             N -= emigrants
             N += immigrants
+            
+            # Random trait evolution of Z
+            z += MCME_Functions.evolve_trait(z, S, 0.5)
 
             counter += 1 # Remomve for Cluster
         print("Burn In: %d" % counter) # Remomve for Cluster
@@ -157,13 +168,22 @@ def MCME(time_in,
     #########################
     #    Main Simulation    #
     #########################
+    # Currently no real function calls that redefine M and S; shouldn't be a problem but could pose issues for adding M's
 
     # Simulate population dynamics for generation time
     for g in range(0, simulation_time):
-
+        ###################
+        # Abiotic Forcing #
+        ###################
+        
         # Extract climate for each species in patches
-        x = np.repeat(climate[:, g], S).reshape(M, S)
+        x = np.repeat(climate[g, :], S).reshape(M, S)
 
+        #####################
+        #     Selection     #
+        #####################
+        # i.e Ecology
+        
         # Density-independent Growth
         # z = species environmental optimum; x = environment
         r_ix = r * np.exp(-((z - x) / (2.0 * sigma_niche)) ** 2.0)
@@ -174,16 +194,25 @@ def MCME(time_in,
         # Species density change
         lambda_vector = r_ix * N * (1.0 / (1.0 + density))
         lambda_vector[lambda_vector < 0.0] = 0.0
-
+        
         # Random value pulled from poisson distribution
         N = [np.random.poisson(l) for l in lambda_vector.flatten()]
         N = np.array(N).reshape(M, S) * 1.0
+
+        # Set metacommunity trait 
+        # Note that the order of selection on the trait will be significant. 
+        # if you want to add a trade-off do so here...
+        z = MCME_Functions.trait_frequnecy_homonization(z, N)
+
+        ###################
+        #    Dispersal    #
+        ###################
 
         # Get emigrants
         emigrants = MCME_Functions.get_emigration(N, dispersal_rate, alpha_matrix)
 
         # Get immigrants
-        immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants)
+        immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025)
 
         # Substract emigrants and add immigrants
         N -= emigrants
@@ -201,7 +230,10 @@ def MCME(time_in,
             den_save.append(distance_matrix)  # Save distance between patchs
             niche_opt.append(z) # Save niche optimum
 
-        # Evolution
+        ###################
+        #   Speciation    #
+        ###################
+        
         ancestor_species = MCME_Functions.get_speciation(N, speciation_rate)
         
         # Save Ancestory
@@ -215,17 +247,36 @@ def MCME(time_in,
             N[N < 0] = 0
             
             # Update interaction coefficients
-            z, alpha_matrix = MCME_Functions.update_interactions(z, alpha_matrix, anc)
+            z, alpha_matrix = MCME_Functions.update_interactions(z, alpha_matrix, anc, end_member)
 
             # Redefine S
             S = N.shape[1]
-            
-
+        
+        ###################
+        #   Evolutuion    #
+        ###################
+        # Random trait evolution of Z
+        New_z =  MCME_Functions.evolve_trait(z, S, 0.5)
+        z += New_z
+    
+        ###################
+        #      Save       #
+        ###################
         counter += 1 # Remomve for Cluster
+        # Set up save pipeline
+        if g in samp_V:
+            # You are only ever iterating N(t) during simulation
+            N_save.append(N) # Save populations
+            lambda_save.append(lambda_vector) # Save Lambda output
+            env_save.append(x) # Save environment at time-step
+            den_save.append(distance_matrix)  # Save distance between patchs
+            niche_opt.append(z) # Save niche optimum
 
-    print("Simulation End: %d" % counter) # Remomve for Cluster
-    print("Total Simulation Generations: %d" % total_generation_time)
+        
+    #print("Simulation End: %d" % counter) # Remomve for Cluster
+    print("Total Simulation Generations: %d" % total_generation_time) # Remomve for Cluster
     # Write to file once function is complete
     # https://docs.python.org/3/library/multiprocessing.shared_memory.html
     # Using shared memory for multiple threads might be the best idea
     return(N_save, lambda_save, env_save, den_save, niche_opt, alpha_matrix, ancestory, divergence_time)
+    #return() # Return for profiling; Delete for complete model
