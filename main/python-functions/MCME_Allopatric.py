@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue May 21 11:03:28 2024
+Created on Tue Jun 11 17:04:08 2024
 
 @author: wyattpetryshen
 """
@@ -123,14 +123,16 @@ def MCME(time_in,
             N = [np.random.poisson(l) for l in lambda_vector.flatten()]
             N = np.array(N).reshape(M, S) * 1.0
             # Set max N
-            N[N > n_max] = n_max
+            #N[N > n_max] = n_max
             # Emigration
             emigrants = MCME_Functions.get_emigration(N, dispersal_rate, alpha_matrix)
             # Immigration
-            immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025)
+            immigrants, trait_flow = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025, z)
             # Substract emigrants and add immigrants
             N -= emigrants
             N += immigrants
+            # Trait frequency homogenization
+            z = MCME_Functions.trait_frequnecy_homonization(z, N, trait_flow)
 
             counter += 1 # Remomve for Cluster
         print("Seed: %d" % counter) # Remomve for Cluster
@@ -142,8 +144,6 @@ def MCME(time_in,
     if burn_in > 0:
         # Burn in loop
         for b in range(0, burn_in):
-            # Update z
-            z = MCME_Functions.trait_frequnecy_homonization(z, N)
             # Find r
             r_burnin = r * np.exp(-((z - x_ini) / (2.0 * sigma_niche)) ** 2.0)
             # Population Dynamics with static Env
@@ -155,19 +155,20 @@ def MCME(time_in,
             N = [np.random.poisson(l) for l in lambda_vector.flatten()]
             N = np.array(N).reshape(M, S) * 1.0
             # Set max N
-            N[N > n_max] = n_max
+            #N[N > n_max] = n_max
             # Emigration
             emigrants = MCME_Functions.get_emigration(N, dispersal_rate, alpha_matrix)
             # Immigration
-            immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025)
+            immigrants, trait_flow = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025, z)
             # Substract emigrants and add immigrants
             N -= emigrants
             N += immigrants
-
+            # Trait frequency homogenization
+            z = MCME_Functions.trait_frequnecy_homonization(z, N, trait_flow)
             # Random trait evolution of Z
             ### May want to reduce the amount for a random trait to evolve
-            z += MCME_Functions.evolve_trait(z, S, 0.5)
-
+            z += MCME_Functions.evolve_trait(z, S, 0.01)
+            
             counter += 1 # Remomve for Cluster
         print("Burn In: %d" % counter) # Remomve for Cluster
     # Save N after burn in
@@ -211,8 +212,6 @@ def MCME(time_in,
         # Set metacommunity trait
         # Note that the order of selection on the trait will be significant.
         # if you want to add a trade-off do so here...
-        # Remove trait homgenization
-        z = MCME_Functions.trait_frequnecy_homonization(z, N)
 
         ###################
         #    Dispersal    #
@@ -222,11 +221,15 @@ def MCME(time_in,
         emigrants = MCME_Functions.get_emigration(N, dispersal_rate, alpha_matrix)
 
         # Get immigrants
-        immigrants = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025)
+        # This needs to return an identical matrix for trait values
+        immigrants, trait_flow = MCME_Functions.get_immigration(M, S, distance_matrix, emigrants, 0.00025, z)
 
         # Substract emigrants and add immigrants
         N -= emigrants
         N += immigrants
+
+        # Trait frequency homogenization
+        z = MCME_Functions.trait_frequnecy_homonization(z, N, trait_flow)
 
         # For population values below 0 set to 0
         N[N < 0] = 0
@@ -242,11 +245,20 @@ def MCME(time_in,
             den_save.append(distance_matrix)  # Save distance between patchs
             niche_opt.append(z) # Save niche optimum
 
-        ###################################
-        #   Random Sympatric Speciation   #
-        ###################################
+        ###################
+        #    Speciation   #
+        ###################
 
+
+        ###################
+        #    Sympatric   #
+        ###################        
         ancestor_species = MCME_Functions.get_speciation(N, speciation_rate)
+
+        ###################
+        #    Allopatric   #
+        ###################  
+        #ancestor_species = MCME_Functions.get_allopatric_speciation(N, z)
 
         # Save Ancestory
         if len(ancestor_species) > 0:
@@ -268,7 +280,7 @@ def MCME(time_in,
         #   Evolutuion    #
         ###################
         # Random trait evolution of Z
-        New_z =  MCME_Functions.evolve_trait(z, S, 0.5)
+        New_z =  MCME_Functions.evolve_trait(z, S, 0.01)
         z += New_z
 
         ###################

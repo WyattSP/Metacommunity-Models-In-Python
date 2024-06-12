@@ -14,7 +14,7 @@ from MCME_Speciation import MCME
 import MCME_Functions
 import MC_Properies_Functions
 import numpy as np
-from MCME_Plot_Functions import mcme_plot, species_richness_plot, plot_origination_extinction
+from MCME_Plot_Functions import mcme_plot, species_richness_plot, plot_origination_extinction, plot_richness_map
 import matplotlib.pyplot as plt
 import sys
 import Climate_Import
@@ -27,33 +27,34 @@ import math
 Tmax_4kyr = Climate_Import.import_climate_data("/Users/wyattpetryshen/Documents/Nature Paper 2024/Climate/Proc_Bricks/Tmax.mon.4kyr.tif", "Geotif", "rasterio")
 
 # Metacommunity on North America
-Cont_Coords = pd.read_csv("/Users/wyattpetryshen/Documents/GitHub/Metacommunity-Models-In-Python/main/Continental_Coords.csv")
+Cont_Coords = pd.read_csv("/Users/wyattpetryshen/Documents/GitHub/Metacommunity-Models-In-Python/main/World_Continent_Coords.csv")
 
 # Extract only NA coords
+# Keep these below lines for full dataset
 mask = Cont_Coords.Cont == "North America"
-NA_LatLon = Cont_Coords[mask]
+NA_array = Cont_Coords[mask]
 
 # Convert Data Frame into array of zip (lon,lat)
 Na_Coords = list()
-for i in range(len(NA_LatLon)):
-    Na_Coords.append((NA_LatLon.Lon[i], NA_LatLon.Lat[i]))
+for i in range(len(NA_array)):
+    Na_Coords.append((NA_array.Lon_d[i], NA_array.Lat_d[i]))
     
 # Randomly sample points in North America
-coord_index = [random.choice(range(len(NA_LatLon))) for i in range(50)]
+coord_index = [random.choice(range(len(NA_array))) for i in range(10)]
 coords = [Na_Coords[i] for i in coord_index]
 
 # coords = MCME_Functions.random_coordinates(100) # Actual random global coordinates
 # Calculate distance matrix
 distance_matrix = MCME_Functions.get_graph_distance_matrix_HadCM3(coords)
 
+climate_input = Climate_Import.return_climate_array(coords, 0, 800, Tmax_4kyr) - 273.5
+
 # Try to recreate figure 3 from Thompson et al. 2020.
 # Set intial paramters 
 time_in = [200, 10, 200, 800]    
-S = 25; max_growth_r = 5; M = 50 
+S = 25; max_growth_r = 5; M = 10 
 
 end_member = "equal"; alpha_matrix_ini = MCME_Functions.initalize_aij(end_member, 0.0, 1.0, S, 0.3)
-
-climate_input = Climate_Import.return_climate_array(coords, 0, 800, Tmax_4kyr) - 273.5
 
 niche_optimum_ini = MCME_Functions.initial_species_niche_optimum(S, M, climate_input[0,:])
 
@@ -67,6 +68,7 @@ speciation_rate = 0.001
 
 # Save list for each experiment
 MCME_niche0_5_equal = list()
+total = len(dispersal_rate_ini)
 
 counter = 0
 for dis in dispersal_rate_ini:
@@ -88,7 +90,6 @@ for dis in dispersal_rate_ini:
     
 MCME_niche10_equal = list()
 counter = 0
-total = len(dispersal_rate_ini)
 for dis in dispersal_rate_ini:
     N_save, lambda_save, env_save, den_save, niche_opt, alpha_matrix, phylogeny, divergence_time = MCME(time_in, 
                                                                                                         S, 
@@ -165,6 +166,5 @@ plt.legend(loc="upper left")
 #########################
 
 plot_richness_map(MCME_niche10_equal[14][-1], NA_LatLon, coord_index)
-
 
 

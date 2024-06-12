@@ -8,7 +8,7 @@ Created on Wed May 22 07:39:16 2024
 
 import matplotlib.pyplot as plt
 import numpy as np
-from treelib import Node, Tree
+#from treelib import Node, Tree
 import seaborn as sns
 import pandas as pd
 
@@ -102,7 +102,6 @@ def plot_phylogeny(phylogeny, divergence_time):
     return()
 
 def get_richness(N_values):
-    N_values = MCME_niche10_equal[-1][-1]
     shape = N_values.shape
     out_richness= np.zeros(shape[0])
     for n_rows in range(shape[0]):
@@ -110,24 +109,20 @@ def get_richness(N_values):
         out_richness[n_rows] = val
     return(out_richness)
 
-get_richness(MCME_niche10_equal[-1][-1])
-
-
-def plot_richness_map(N_values, coords, coord_index):
+def plot_richness_map(N_values, coords, coord_index, return_pivot = False):
 
     lon_in = [coords.Lon[i] for i in coord_index]
     lat_in = [coords.Lat[i] for i in coord_index]
     r_in = get_richness(N_values)
     
-    in_data = pd.DataFrame({"X": lon_in, "Y": lat_in, "R": r_in})
-    in_data = in_data.pivot_table(index='X', columns='Y', values='R')
+    in_data = pd.DataFrame({"Lon": lon_in, "Lat": lat_in, "R": r_in})
+    
+    in_data = in_data.pivot_table(index='Lat', columns='Lon', values='R')
     
     sns.heatmap(in_data, annot=False, fmt="g", cmap='viridis')
 
-
-
-
-
+    if return_pivot == True:
+        return(in_data)
 
 
 

@@ -10,7 +10,10 @@ Created on Mon May 27 17:59:42 2024
 import pyreadr # this library allows for .rds files to be imported
 import rasterio # this allows for raster files to be imported
 import numpy as np
-#import xarray
+import matplotlib.pyplot as plt
+from scipy import signal
+import scipy
+#import 
 #import rioxarray # Need to pip install this...
 
 def import_climate_data(path_to_file, file_type, engine):
@@ -69,7 +72,7 @@ def return_climate_array(coord_list, start_index, end_index, global_HadCM3_clima
     
     #lat_centers = np.trim_zeros(lat_centers)  
     #lon_centers = np.trim_zeros(lon_centers) 
-    
+
     coord_list = np.trim_zeros(coord_list) 
     
     climate_out = np.zeros((end_index-start_index, len(coord_list)))
@@ -78,7 +81,207 @@ def return_climate_array(coord_list, start_index, end_index, global_HadCM3_clima
         index_lon = lon_centers.index(i[0])
         index_lat = lat_centers.index(i[1])
         
-        climate_out[start_index:end_index, count] = global_HadCM3_climate[index_lat, index_lon, start_index:end_index]
+        climate_out[:, count] = global_HadCM3_climate[index_lat, index_lon, start_index:end_index]
         count += 1
     return(climate_out)
+
+###################################
+#   Climate Alteration Functions  #
+###################################
+
+
+# Two potential methods:
+    # 1) skipping every n-number of points and connecting
+    # 2) using a smoothing spline from scipy 
+
+# Skipping n-points to remove high frequency variation
+
+def linear_climate_interpolation(climate, sampling_interval, supress_warnings = False):
+    climate_in = climate
+
+    # Original step vector
+    kya_2_step = np.arange(len(climate_in))
+    
+    # Sample every second point
+    step_interval = kya_2_step[0::sampling_interval]
+    
+    # Index original time-series
+    new_clim = climate_in[step_interval]
+    
+    interp_climate = np.array([])
+    # New climate interpolated
+    for i in range(len(step_interval) - 1):
+        # Set point values X
+        s_index = step_interval[i]
+        e_index = step_interval[i + 1]
+        # Set climate values Y
+        cs_index = new_clim[i]
+        ce_index = new_clim[i + 1]
+        
+        # New point indexes
+        new_i =  np.zeros(sampling_interval-1)
+        next_i = s_index + 1
+        for i in range(len(new_i)):
+            new_i[i] = next_i
+            next_i += 1
+        
+        # Get new points using a linear interpolation
+        new_point = np.interp(new_i, [s_index,e_index], [cs_index,ce_index])
+        
+        # Combine point into array
+        in_stack = np.hstack([cs_index, new_point])
+        
+        # Add to master array
+        interp_climate = np.hstack([interp_climate,in_stack])
+    
+    # Add end point
+    end_c = new_clim[-1]
+    interp_climate = np.hstack([interp_climate,end_c])
+    
+    # Check lengths and throw warning if not equal to original
+    if len(kya_2_step) != len(interp_climate):
+        if supress_warnings == True:
+            print("Warning: Climte input and function output lengths are different %d" % len(kya_2_step), "versus %d" % len(interp_climate))
+    
+    return(interp_climate)
+
+def interpolate_climate_array(climate_array, sampling_interval):
+    # Define new empty array
+    new_array = np.zeros(climate_array.shape)
+    
+    # Sample each column 
+    for cols in range(climate_array.shape[1]):
+        new_vec = linear_climate_interpolation(climate_array[:,cols], sampling_interval)
+        new_array[:,cols] = new_vec
+        
+    return(new_array)
+
+def fourier_smooth_climate(climate_array, lfreq, hfreq, plot_spec_matplot = True, plot_scipy = False, verbose = False):
+    # Retrieve current t-series length
+    spectra = climate_array
+    n = len(spectra)
+    # Check that time series is even length
+    if n % 2 != 0:
+        # drop first element to make even
+        spectra = spectra[1:]
+        n = len(spectra)
+    else:
+        if verbose == True:
+            print("Spectra is even")
+        
+    # Set frequency interval
+    lfreq = lfreq
+    hfreq = hfreq
+    
+    #### Scipy implementation with rfft, rfftfreq, irfft
+    # fourier coefficients
+    rfft = scipy.fft.rfft(spectra)
+    # frequencies
+    rfreq = scipy.fft.rfftfreq(n)
+    # get mean
+    ###mean = abs(rfft[0])
+    # get Nyquist
+    ####nyq = np.sqrt(np.imag(rfft[-1])**2 + np.real(rfft[-1])**2)
+    # get phases
+    phase = np.arctan2(np.imag(rfft), np.real(rfft))
+    # get amplitudes
+    amp = np.sqrt(np.imag(rfft)**2 + np.real(rfft)**2)
+    # power
+    powr = amp**2
+    #### fourier manipulation
+    # find index positions to reset
+    zero_freq_index = np.where((rfreq >= lfreq) & (rfreq <= hfreq))[0]
+    # Change frequencies to zero; phases don't matter
+    amp[zero_freq_index] = 0
+    #phase[zero_freq_index] = 0 
+    # recompile time series 
+    new_series = np.array([complex(amp[i]*np.cos(phase[i]), amp[i]*np.sin(phase[i])) for i in range(len(rfreq))])
+    # inverse rfft
+    X = scipy.fft.irfft(new_series)
+    
+    # FFT via numpy
+    #s_fft = np.fft.fft(spectra)
+    #mean = abs(s_fft[0])
+    #nyq = np.sqrt(np.imag(s_fft[n//2])**2 + np.real(s_fft[n//2])**2)
+    #phase = np.arctan2(np.imag(s_fft), np.real(s_fft))
+    #s_fft_l = s_fft[1:n//2]
+    #amp = np.sqrt(np.imag(s_fft_l)**2 + np.real(s_fft_l)**2)
+    #powr = np.real(s_fft_l)**2
+    #phsr = np.imag(s_fft_l)
+    #freq = np.array([i/n for i in range(1, n//2)])
+    #zero_freq_index = np.where((freq >= lfreq) & (freq <= hfreq))[0]
+    #amp[zero_freq_index] = 0
+    #new_aseries = np.concatenate(([mean], amp, [nyq], amp[::-1]))
+    #new_pseries = np.concatenate(([0], phase[1:n//2-1], [0], phase[n//2:]))
+    #new_series = np.array([complex(new_aseries[i]*np.cos(new_pseries[i]), new_aseries[i]*np.sin(new_pseries[i])) for i in range(len(new_aseries))])
+    #X = np.real(np.fft.ifft(new_series)) / n
+    
+    # Check Lengths
+    L = len(X)
+    if L != n:
+        print("Old and new series length do not match")
+
+    # Plot if desired
+    if plot_spec_matplot:
+        fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+        axs[0, 0].plot(range(len(climate_array)), climate_array, color='black', linestyle='-', label='Original Time Series')
+        axs[0, 0].set_xlabel('Observations')
+        axs[0, 0].set_ylabel('Unit')
+        axs[0, 0].set_title('Original Time Series')
+
+        axs[0, 1].plot(range(len(X)), X, color='red', linestyle='-', label='Modified Time Series')
+        axs[0, 1].set_xlabel('Observations')
+        axs[0, 1].set_ylabel('Unit')
+        axs[0, 1].set_title('Modified Time Series')
+
+        axs[1, 0].plot(rfreq, np.log(powr), color='blue', linestyle='-')
+        axs[1, 0].set_xlim([-0.02, 0.52])
+        axs[1, 0].set_xlabel('frequency [Hz]')
+        axs[1, 0].set_ylabel('Log PSD [V**2/Hz]')
+
+        axs[1, 1].plot(rfreq, np.log(amp**2), color='green', linestyle='-')
+        axs[1, 1].set_xlim([-0.02, 0.52])
+        axs[1, 1].set_xlabel('frequency [Hz]')
+        axs[1, 1].set_ylabel('Log PSD [V**2/Hz]')
+
+        plt.tight_layout()
+        plt.show()
+    if plot_scipy:
+        f, Pxx_den = signal.periodogram(X, 1)
+        plt.semilogy(f, Pxx_den)
+        #plt.ylim([1e-7, 1e2])
+        plt.xlabel('frequency [Hz]')
+        plt.ylabel('PSD [V**2/Hz]')
+        plt.show()  
+
+    return X
+    
+def get_timeseries_frequency_range(climate_array):
+    spectra = climate_array
+    n = len(spectra)
+    # Check that time series is even length
+    if n % 2 != 0:
+        # drop first element to make even
+        spectra = spectra[1:]
+        n = len(spectra)
+        print("Spectra is odd: dropped first observation at index = 0")
+    else:
+        print("Spectra is even")
+        
+    rfreq = scipy.fft.rfftfreq(n)
+    return(rfreq)
+        
+def get_fourier_smooth_climate(climate_array, lfreq, hfreq,):
+    # Define new empty array
+    new_array = np.zeros(climate_array.shape)
+    # Sample each column 
+    for cols in range(climate_array.shape[1]):
+        new_vec = fourier_smooth_climate(climate_array[:,cols], lfreq, hfreq, False, False)
+        new_array[:,cols] = new_vec
+        
+    return(new_array)
+    
+def year_to_frequency(year, measurement_unit):
+    return(1/(year/measurement_unit))
+    
 
