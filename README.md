@@ -17,8 +17,8 @@ Species interactions are determined according the the Beaverton-Holt equation as
 * Future work will be to include in tradeoffs along multiple trait axes, including a trait axes related to dispersal ability.
 
 ** Beaverton-Holt Equation **
-```math
-N_{ix}(t+1) = \frac{1}{1 + $\sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
+```math <limits="false">
+N_{ix}(t+1) = \frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
 ```
 
 ### Environmental (abiotic) Effects
