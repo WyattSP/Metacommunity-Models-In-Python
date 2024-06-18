@@ -685,10 +685,45 @@ for i in range(4):
 fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/fourier_steps_v2.png', format='png', dpi=300, transparent=True)
 
 
-len(climate_4kya[1:,1])
-len(fClimate_16kya[:,1])
-len(fClimate_40kya[:,1])
-len(fClimate_100kya[:,1])
+
+#### Line plot of smoothed climate
+
+
+##############################################
+#  Line Plot Example of Different Time Steps #
+##############################################
+fig, axs = plt.subplots(3, 1, figsize=(13, 10))
+#fig.tight_layout(pad=0.5)
+axs[0].plot(range(len(climate_4kya[:,43])), climate_4kya[:,43], color='black', linestyle='-')
+axs[0].text(0, 26,'Climate Forcings ≥ 4000-Years', ha='left', va='bottom', color = 'black', size = 18)
+axs[0].set_xticks([])
+#axs[0].axhline(y = 29,lw=0.5, color='black', alpha=0.5)
+
+axs[1].plot(range(len(climate_40kya[:,43])), climate_40kya[:,43], color='blue', linestyle='-')
+axs[1].set_xticks([])
+axs[1].text(0, 26,'Climate Forcings ≥ 40,000-Years', ha='left', va='bottom', color = 'black', size = 18)
+#axs[1].axhline(y = 29,lw=0.5, color='black', alpha=0.5)
+
+axs[2].plot(range(len(climate_100kya[:,43])), climate_100kya[:,43], color='green', linestyle='-')
+axs[2].set_xticks([])
+axs[2].text(0, 26,'Climate Forcings ≥ 100,000-Years', ha='left', va='bottom', color = 'black', size = 18)
+#axs[2].axhline(y = 29,lw=0.5, color='black', alpha=0.5)
+axs[2].set_ylabel("T ($^\circ$C)")
+
+for i in range(3):
+    axs[i].tick_params(axis='x', colors='black')
+    #axs[i].tick_params(axis='y', colors='black')
+    axs[i].spines['bottom'].set_color('black')
+    axs[i].spines['top'].set_color('black') 
+    axs[i].spines['right'].set_color('black')
+    axs[i].spines['left'].set_color('black')
+    axs[i].yaxis.label.set_color('black')
+    axs[i].xaxis.label.set_color('black')
+    axs[i].set_ylim([26,31])
+    axs[i].set_ylabel("T ($^\circ$C)", size = 15)
+    axs[i].grid(False)
+
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/skip_time_ex.png', format='png', dpi=300, transparent=True)
 
 
 

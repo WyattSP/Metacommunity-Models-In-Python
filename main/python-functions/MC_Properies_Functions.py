@@ -41,4 +41,3 @@ def alpha_richness(population_list):
             m_alpha += len(np.where(pop_mat[m,:] > 0)[0])
         alpha_t.append(m_alpha / m_slices)
     return(alpha_t)
-

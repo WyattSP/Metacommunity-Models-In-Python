@@ -214,19 +214,101 @@ def get_speciation(N, speciation_rate):
     ancestor_species = new_species[new_species != -999]
     return(ancestor_species)
 
-def save_ancestory(N, ancestor_species, current_simulation_time_step):
-    n_anc = len(ancestor_species)
+def get_allopatric_speciation_v2(N, z, speciation_threshold, g):
+    # Need to get out the patch location and ID of ancestor
+    # list to save new species
+    ancestor_species = list()
+    for s in range(z.shape[1]):
+        # Find patches where species abundance above zero
+        sp_non_zero = np.where(N[:,s] != 0)[0]
+        if len(sp_non_zero) == 0:
+            continue
+        # Get niche values
+        in_v = z.copy()[sp_non_zero,s]
+        if len(in_v) == 0:
+            print(g, s)
+        # Set bounds for new species outside intial species standard deviation with some added threshold
+        spec_thers = np.std(in_v) + speciation_threshold
+        upper_n = np.mean(in_v) + spec_thers
+        lower_n = np.mean(in_v) - spec_thers
+        # Find index for species outside threshold
+        tc = [i < lower_n or i > upper_n for i in in_v]
+        # Patches with species i over threshold
+        td = sp_non_zero[tc]
+        if len(td) == 0:
+            continue
+        else:
+            n_sp = [[i, s] for i in td]
+            for l in n_sp:
+                ancestor_species.append(l)
+    return(ancestor_species)
+
+def get_allopatric_speciation(N, z, speciation_threshold):
+    # Need to get out the patch location and ID of ancestor
+    # list to save new species
+    ancestor_species = list()
+    # Get patches that are occupied
+    for s in range(z.shape[1]):
+        # Find patches where species abundance above zero
+        sp_non_zero = np.where(N[:,s] != 0)[0]
+        # Get niche values
+        in_v = z.copy()[sp_non_zero,s]
+        in_len = len(in_v)
+        # Get pairwise trait values
+        # This works but is inefficient since you are calculating everything twice 
+        ta = np.array(np.meshgrid(in_v,in_v)).reshape(2,in_len*in_len).T
+        # Indices
+        tb = np.array(np.meshgrid(sp_non_zero,sp_non_zero)).reshape(2,in_len*in_len).T
+        # Get mask
+        tc = [abs(i[0] - i[1]) > speciation_threshold for i in ta] 
+        # Indices over threshold
+        td = tb[tc]
+        if len(td) == 0:
+            continue
+        else:
+            n_spec_indc = np.unique(np.sort(td, axis=1).view(','.join([td.dtype.char]*2))).view(td.dtype).reshape(-1, 2)
+
+            # Put patch and species ID into a list
+            n_sp = [[i, s] for i in np.unique(n_spec_indc)]
+            for l in n_sp:
+                ancestor_species.append(l)
+    return(ancestor_species)
+
+def add_new_allopatric_species(N, patch_ancestor, g):
+    # Convert every element in patch_ancestor to a new species
+    n_species = len(patch_ancestor)
+    # Construct new dense array
+    rows = N.shape[0]
+    columns = N.shape[1]
+    new_N = np.zeros((rows, columns + n_species))
+    # Copy old dense array to fill top-left quadrant
+    new_N[0:rows, 0:columns] = N.copy()
+    # Now change ancestor species to new species in correct patch
+    for s in range(n_species):
+        # Get indexes for new species
+        new_spec_index = columns + s
+        # Get number of individuals from old patch
+        delta_n = new_N[patch_ancestor[s][0],patch_ancestor[s][1]]
+        new_N[patch_ancestor[s][0], patch_ancestor[s][1]] -= delta_n # subtract old species
+        new_N[patch_ancestor[s][0], new_spec_index] += delta_n # add new species
+    # Return new N matrix
+    return(new_N)
+
+def save_ancestory(N, patch_ancestor, current_simulation_time_step):
+    anc_sp = [i[1] for i in patch_ancestor]
+    n_anc = len(patch_ancestor)
     # Get current number of species
     current_species_number = N.shape[1]
     # Get ID's of new species
-    new_species_ids = list(range(current_species_number, current_species_number + len(ancestor_species)))
+    new_species_ids = list(range(current_species_number, current_species_number + len(patch_ancestor)))
     # Stack ancestor with its corresponding descendent
-    anc_out = np.vstack((ancestor_species,new_species_ids))
+    anc_out = np.vstack((anc_sp,new_species_ids))
     # Save divergence time
     previous_step = [(current_simulation_time_step - 1)] * n_anc
     current_step = [current_simulation_time_step] * n_anc
     dec_out = np.vstack((previous_step,current_step))
     return(anc_out, dec_out)
+ 
 
 def add_new_species(N, anc, g):
     in_species = anc
@@ -323,7 +405,7 @@ def update_interactions(z, alpha_matrix, anc, end_member):
         anc_z_val = z[:,old_j]
         # add random jitter from uniform
         # append new value to new_z
-        new_z[:,new_j] = anc_z_val + np.random.uniform(-0.05, 0.05, 1)
+        new_z[:,new_j] = anc_z_val #+ np.random.uniform(-0.05, 0.05, 1)
 
     if new_z.shape[1] != total_S:
         print("WARNING: Error in New Z Calculation")
@@ -425,33 +507,33 @@ def evolve_trait(z, S, sd):
     return(z_additions)
 
 def trait_frequnecy_homonization(z, N, trait_flow):
-    z_new = z
+    updated_z = z.copy()
     # Loop over every patch
     for p in range(N.shape[0]):
-        p = 1
         # Iterate over each species to homogenize in each patch
         # In trait flow find matching patch and species 
         # You do not need to homogenize if no immigration occurred
         imig = [i for i in trait_flow if i[0] == p]
         if len(imig) == 0:
-            continue
+            pass
         # Get unique species to iterate through
         z_species = np.unique([i[1] for i in imig])
         for s in z_species:
             z_z =  sum([k[2] * k[3] for k in imig if k[1] == s])
             N_tot = sum([k[2] for k in imig if k[1] == s])
-            new_z = z_z / N_tot
+            new_z = round(z_z / N_tot, 3)
             # Need to find number of old species that will contribute variation 
             if N[p,s] <= N_tot:
-                z_new[p,s] = new_z
+                updated_z[p,s] = new_z
             else:
                 old_n = N[p,s] - N_tot
                 z_old = z[p,s] * old_n
                 z_z += z_old
                 N_tot += old_n
                 new_z = z_z / N_tot
-                z_new[p,s] = new_z
-    return(z_new)
+                updated_z[p,s] = round(new_z,3)
+    return(updated_z)
+
 
 ############################
 #      Save Functions      #
