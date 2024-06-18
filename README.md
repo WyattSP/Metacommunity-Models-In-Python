@@ -1,3 +1,4 @@
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 # Python Metacommunity Models (pyMCME)
 
 This library aims to implement the metacommunity model outlined within Leibhold and Chase (2018) in an efficient, python-based, framework to later study community dynamics using the Haar flucutation wavelet outlined by Lovejoy (2015).
@@ -45,7 +46,7 @@ After each time-step individuals from within a habitat patch can disperse across
 
 The full equation that determines population abundance within each patch is as follows:
 ```math
-N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum_\{j = 1}^{S}{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)
+N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)
 ```
 
 
