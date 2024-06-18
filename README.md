@@ -18,7 +18,7 @@ Species interactions are determined according the the Beaverton-Holt equation as
 
 ** Beaverton-Holt Equation **
 ```math
-N_{ix}(t+1) = {1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
+N_{ix}(t+1) = \frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
 ```
 
 ### Environmental (abiotic) Effects
@@ -42,6 +42,12 @@ After each time-step individuals from within a habitat patch can disperse across
 ```math
 
 ```
+
+The full equation that determines population abundance within each patch is as follows:
+```math
+N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)
+```
+ 
 
 ### Trait Evolution and Speciation
 
