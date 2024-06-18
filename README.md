@@ -1,4 +1,3 @@
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 # Python Metacommunity Models (pyMCME)
 
 This library aims to implement the metacommunity model outlined within Leibhold and Chase (2018) in an efficient, python-based, framework to later study community dynamics using the Haar flucutation wavelet outlined by Lovejoy (2015).
@@ -19,7 +18,7 @@ Species interactions are determined according the the Beaverton-Holt equation as
 
 ** Beaverton-Holt Equation **
 ```math
-N_{ix}(t+1) = \frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
+N_{ix}(t+1) = \frac{1}{1 + $\sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
 ```
 
 ### Environmental (abiotic) Effects
