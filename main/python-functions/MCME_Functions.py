@@ -8,8 +8,8 @@ Created on Tue May 21 10:32:06 2024
 
 # Library imports
 import numpy as np
-import scipy.sparse as sparse
-from scipy.spatial.distance import pdist, squareform
+#import scipy.sparse as sparse
+#from scipy.spatial.distance import pdist, squareform
 import geopy.distance
 
 

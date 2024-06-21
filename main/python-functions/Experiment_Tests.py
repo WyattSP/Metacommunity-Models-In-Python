@@ -126,7 +126,7 @@ end_member = ["equal", "stabalizing", "mixed", "neutral"]
 # Equal species interactions
 alpha_matrix_equal = MCME_Functions.initalize_aij("equal", 0.0, 1.0, S, 0.3)
 # Stabalizing species interactions
-alpha_matrix_stabalizing = MCME_Functions.initalize_aij("stabalizing", 0.0, 1.0, S, 0.3)
+alpha_matrix_stabalizing = MCME_Functions.initalize_aij("stabalizing", 0.0, 0.5, S, 0.3)
 # Mixed species interactions
 alpha_matrix_mixed = MCME_Functions.initalize_aij("mixed", 0.0, 1.5, S, 0.3)
 # Neutral species interactions
@@ -143,13 +143,13 @@ alpha_matrix_list = list([alpha_matrix_equal, alpha_matrix_stabalizing, alpha_ma
 results, niche_opt, alpha_matrix, phylogeny, divergence_time, patch_origin = MCME(time_in =  [100, 10, 100, 500],
                                                                    species_number_ini = 25,
                                                                    max_growth_r = 5,
-                                                                   speciation_threshold = 0.5,
+                                                                   speciation_threshold = 0.25,
                                                                    alpha_matrix_ini = alpha_matrix_stabalizing,
                                                                    distance_matrix = distance_matrix,
                                                                    climate_input = climate_4kya,
                                                                    niche_optimum_ini = niche_optimum_ini_4,
                                                                    dispersal_rate_ini = 0.1,
-                                                                   niche_breadth_ini = 2,
+                                                                   niche_breadth_ini = 0.5,
                                                                    end_member = "stabalizing")
 
 
@@ -157,13 +157,13 @@ results, niche_opt, alpha_matrix, phylogeny, divergence_time, patch_origin = MCM
 results_100, niche_opt_100, alpha_matrix_100, phylogeny_100, divergence_time_100, patch_origin_100 = MCME(time_in =  [100, 10, 100, 500],
                                                                    species_number_ini = 25,
                                                                    max_growth_r = 5,
-                                                                   speciation_threshold = 0.5,
+                                                                   speciation_threshold = 0.25,
                                                                    alpha_matrix_ini = alpha_matrix_stabalizing,
                                                                    distance_matrix = distance_matrix,
                                                                    climate_input = fClimate_100kya,
                                                                    niche_optimum_ini = niche_optimum_ini_100,
                                                                    dispersal_rate_ini = 0.1,
-                                                                   niche_breadth_ini = 2,
+                                                                   niche_breadth_ini = 0.5,
                                                                    end_member = "stabalizing")
 
 #########################
@@ -174,16 +174,27 @@ from pstats import SortKey, Stats
 
 # When profiling set the return function to nothing so you don't overflow your console
 
-#with Profile() as profile:
-#    print(f"{ MCME(time_in =[200, 10, 200, 200], species_number_ini = S, max_growth_r = 5, speciation_rate = 0.1, alpha_matrix_ini = alpha_matrix_stabalizing, distance_matrix = distance_matrix, climate_input = climate_input_list[1], niche_optimum_ini = niche_optimum_ini, dispersal_rate_ini = 0.001, niche_breadth_ini = 2.5, end_member = end_member[1] ) = }")
-#    (
-#     Stats(profile)
-#     .strip_dirs()
-#     .sort_stats(SortKey.CALLS)
-#     .print_stats()
-#     )
+with Profile() as profile:
+    print(f"{ MCME(time_in =  [100, 10, 100, 500],species_number_ini = 25,max_growth_r = 5,speciation_threshold = 0.25,alpha_matrix_ini = alpha_matrix_stabalizing,distance_matrix = distance_matrix, climate_input = fClimate_100kya,niche_optimum_ini = niche_optimum_ini_100,dispersal_rate_ini = 0.1,niche_breadth_ini = 0.5,end_member = 'stabalizing') = }")
+    (
+     Stats(profile)
+     .strip_dirs()
+     .sort_stats(SortKey.CALLS)
+     .print_stats()
+     )
 
 sys.getsizeof(results)
+
+######################################
+# Notes for Performance Improvements #
+######################################
+import time
+start = time.time()
+np.random.poisson(10000,int(1e7))
+end = time.time()
+print(end-start)
+
+
 ##########################
 # Calculate Comm Metrics #
 ##########################
@@ -210,7 +221,7 @@ plt.plot(range(len(np.cumsum(orgination[:,1]))), np.cumsum(orgination[:,1]), c =
 plt.plot(range(len(np.cumsum(extinction[:,1]))), np.cumsum(extinction[:,1]), c = "red")
 
 # Plot map of geographic points with colours illustrating community richness
-plot_richness_map(results[0], Clim_array, coord_index, False)
+plot_richness_map(results[-1], Clim_array, coord_index, False)
 
 #np.savetxt("/Users/wyattpetryshen/Documents/GitHub/Metacommunity-Models-In-Python/test_out_raster.csv", t, delimiter=",")
 
@@ -238,14 +249,14 @@ methods = [None, 'none', 'nearest', 'bilinear', 'bicubic', 'spline16',
            'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos']
 
 ### 4 kya plot of spatial richness
-hmap = plt.imshow(data_4.values, cmap='viridis', interpolation='nearest', vmin=0, vmax=20)
-plt.colorbar(hmap, ticks=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
+hmap = plt.imshow(data_4.values, cmap='viridis', interpolation='nearest', vmin=0)
+#plt.colorbar(hmap, ticks=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
 plt.axis('off')
 plt.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/s05_4_stab_heat.png', format='png', dpi=300, transparent=True)
 
 ### 100 kya plot of spatial richness
-htmap = plt.imshow(data_100.values, cmap='viridis', interpolation='nearest', vmin=0, vmax=20)
-plt.colorbar(htmap,ticks=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
+htmap = plt.imshow(data_100.values, cmap='viridis', interpolation='nearest', vmin=0)
+#plt.colorbar(htmap,ticks=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
 plt.axis('off')
 plt.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/s05_100_stab_heat.png', format='png', dpi=300, transparent=True)
 
@@ -566,5 +577,53 @@ for filename in filnames_sorted:
     except:
         continue
 imageio.mimsave("/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/Narrow_Cell_9_100kya_Trait_Dynamics.gif", images)
+
+
+###########
+# GIF MAP #
+###########
+##################
+
+### Climate 100kya
+clime_s = 0
+clime_e =  500
+niche_breadth = 0.5
+for s in range(0,500):
+    t = results_100[s]
+    map_in = return_richness_pivot_table(t, Clim_array, coord_index)
+    ### 100 kya plot of spatial richness
+    plt.ioff()
+    htmap = plt.imshow(map_in.values, cmap='viridis', interpolation='nearest', vmin=0)
+    #plt.colorbar(htmap,ticks=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
+    plt.axis('off')
+    plt.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/map_gif_test/%d_step.png' % s)
+
+
+# Create Gif
+import os
+import re
+path = "/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/map_gif_test/"
+# Import files
+filenames = os.listdir(path)
+# Remove the DS Store
+if '.DS_Store' in filenames:
+  filenames.remove('.DS_Store')
+# Sort
+numeric_files = [int(re.match("[0-9]+", x)[0]) for x in filenames]
+file_index = np.argsort(numeric_files)
+file_index = [i for i in file_index]
+# Organize files
+filnames_sorted = [path + filenames[i] for i in file_index]
+
+import imageio
+images = []
+for filename in filnames_sorted:
+    try:
+        images.append(imageio.imread(filename))
+    except:
+        continue
+imageio.mimsave("/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/SA_100kya_Map.gif", images)
+
+
 
 
