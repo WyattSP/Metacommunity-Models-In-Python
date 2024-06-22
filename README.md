@@ -126,7 +126,7 @@ Simulation output:
 
 ### Example Dynamics
 
-Simulation of South America initially seeded with 25 founder species under stabilizing interactions. Simulation was run for 100 seeding steps, 100 burnin steps, and 500 model steps using the HadCM3BB_Long climate reconstructions from 2-million-years-ago to present (Farnsworth and Valdes 2022). Dispersal distance was 0.1 per step, speciation threshold of 0.25, ,max growth rate of 5, and niche breadth $$\sigma = 0.5$$
+Simulation of South America initially seeded with 25 founder species under stabilizing interactions. Simulation was run for 100 seeding steps, 100 burnin steps, and 500 model steps using the HadCM3BB_Long climate reconstructions from 2-million-years-ago to present (Farnsworth and Valdes 2022). Dispersal distance was 0.1 per step, speciation threshold of 0.25, ,max growth rate of 5, and niche breadth $\sigma = 0.5$
 
 <p align="center">
   <img src="./main/images/SA_100kya_Map.gif" width=50% height=50%>
@@ -146,12 +146,12 @@ The most important aspect of this experiment is deciding exactly how the climate
 
 The idea behind the climate smoothing methods is to exclude high-frequency variation, that would be exclude when large time steps are taken between climate inputs within a simulation run. For example, if the native-resolution of the climate is a temperature observation every 4-thousand-years, what would that climate time-series look like if the observations were every 16-thousand-years instead? One key caveat is that since we do not want to scale the parameter values for the other processes within the model, we need the number of climate observations to remain constant. The most intuitive way to achieve this goal is through skipping every a set number of points between real observations and interpolating equally spaced points between the values to hold n-observations equal. For example, we have initial observations at 0 kya, 4 kya, 8 kya, and 12 kya. If we want to increase our time step from 4 kya to 12 kya, we would exclude the observation at 4 and 4 kya, and instead context the 0 - 12 kya observations with a linear model and interpolate new values at 4 and 8 kya. This effectively excludes high-frequency variation. The problem with this method is that you also alter the temporal autocorrelation of your climate observations by employing an interpolation based method. This is demonstrated in the frequency-domain figure by the shifted slope in the log-log plot of climate power versus frequency. Based upon work by Vasseur and others (2009) and Cuddingham and Yodiz (1999), changes within the structure of temporal autocorrelation can have impacts on population dynamics, mainly synchrony and persistence. As such, a better method is to alter the Fourier-coefficients for high-frequency processes you want to exclude. Methodologically, this involves converting the time series into the frequency domain and setting the amplitudes for Fourier-coefficients above a certain frequency threshold to zero. This ensures that the power and autocorrelation of periodic phase-coherent and quasi-periodic phase-incoherent processes are maintained in the low-frequency domains.
 
-* Need to upload draft quality figures for the time and frequency domain plots of the environmental data. 
+* Need to upload draft quality figures for the time and frequency domain plots of the environmental data.
 
 <p align="center">
-  <img src="./main/images/git_time_domain_env.gif" width=50% height=50%>
+  <img src="./main/images/git_time_domain-env.png" width=50% height=50%>
 </p>
 
 <p align="center">
-  <img src="./main/images/git_frequency_domain_env.gif" width=50% height=50%>
+  <img src="./main/images/git_frequency_domain_env.png" width=50% height=50%>
 </p>
