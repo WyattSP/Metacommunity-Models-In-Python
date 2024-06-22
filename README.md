@@ -37,7 +37,7 @@ Growth rate within pyMCME is determined by the match between a species niche opt
 r_{ix}(t) = r_{max}e^{-(\frac{z_{i} - env_{x}(t)}{2\sigma_{i}})^2}
 ```
 
-![Effect of the Environment on Growth Rate](./main/images/git_growth_fig.png | width = 150)
+<img src="./main/images/git_growth_fig.png" width=50% height=50%>
 
 #### Demographic Stochasticity
 
@@ -63,7 +63,8 @@ The full equation that determines population abundance within each patch is as f
 N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)
 
 ```
-![Dispersal](./main/images/git_dispersal_fig.png | width = 150)
+
+<img src="./main/images/git_dispersal_fig.png" width=50% height=50%>
 
 ### Trait Evolution and Speciation
 
@@ -85,7 +86,7 @@ The most complicated aspect of this model, and the area by which it varies the m
 
 * Future work will aim to include increased speciation rates that are tied to environmental conditions. Increased speciation due to warming temperatures.
 
-![Trait Evolution and Speciation](./main/images/git_speciation_fig.png | width = 150)
+<img src="./main/images/git_speciation_fig.png" width=50% height=50% align:center>
 
 ## Simulation Initialization
 
