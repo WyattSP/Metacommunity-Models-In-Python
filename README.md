@@ -21,9 +21,11 @@ Species interactions are determined according the the Beaverton-Holt equation as
 * Future work will be to include in tradeoffs along multiple trait axes, including a trait axes related to dispersal ability.
 
 ** Beaverton-Holt Equation **
-```math
+$$
 N_{ix}(t+1) = \frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
-```
+$$
+
+![Equal and Stabalizing Species Interactions](./main/images/interactions_fig.png)
 
 #### Environmental (abiotic) Effects
 
@@ -32,17 +34,19 @@ Growth rate within pyMCME is determined by the match between a species niche opt
 * Future work will be to convert the Gaussian function to a Gompertz Gaussian function. I also aim to incorporate the metabolic theory of ecology (Brown et al.) into the model, and an effect of temperature on dispersal.
 
 ** Growth Rate Exponent **
-```math
+$$
 r_{ix}(t) = r_{max}e^{-(\frac{z_{i} - env_{x}(t)}{2\sigma_{i}})^2}
-```
+$$
+
+![Effect of the Environment on Growth Rate](./main/images/clim_fig.png)
 
 #### Demographic Stochasticity
 
 Following Thompson et al. (2020), demographic stochasticity is introduced into the model via a random population integer value drawn from a Poisson distribution prior to dispersal process by the following equation:
 
-```math
+$$
 N_{ix}(t+1) = Poisson(max{\frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}, 0})
-```
+$$
 
 ### Dispersal
 
@@ -51,35 +55,39 @@ After each time-step individuals from within a habitat patch can disperse across
 * Future work will look to move beyond a stochastic dispersal process and instead link dispersal probability to the environment as well as to the strength of species interactions. This may be an ideal process to include as a tradeoff.    
 
 ** Dispersal Distance **
-```math
+$$
 I_{ix}(t) = \frac{\sum_{y != x}^{M}{E_{iy}(t)^{-L_{i}d_{x}}}}{\sum_{x = 1}^{M}{E_{ix}(t)}}
-```
+$$
 
 The full equation that determines population abundance within each patch is as follows, with the a Poisson value drawn from the right side of the equation, excluding immigration and emigration.
 
-```math
+$$
 N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)
-```
+$$
+
+![Dispersal](./main/images/disp_fig_1.png)
 
 ### Trait Evolution and Speciation
 
 Trait evolution within pyMCME is very simple whereby a trait will evolve via random drift based upon a defined standard deviation for a random value drawn from a uniform distribution. The default standard deviation for trait evolution is 0.05.
 
 ** Trait Evolution **
-```math
+$$
 z_{ix}(t+1) = z_{ix}(t) + U(0.05)
-```
+$$
 
 * Future work could look to alter the rate of trait evolution as a tradeoff with dispersal ability or species interactions.
 
 The most complicated aspect of this model, and the area by which it varies the most from other models, is via speciation. To be clear, pyMCME does not adhere to strict allopatic speciation based upon patch isolation from the main species pool. Instead, speciation occurs when a local communities (single population within a patch) mean niche optimum extends beyond the standard deviation of the entire species (whole metacommunity excluding the patch of interest) plus some threshold value for speciation. This formulation of speciation allows for gene flow to occur due to dispersal processes, but also allows for speciation to occur via random drift.
 
 ** Speciation **
-```math
+$$
 \mu_{ix}^{M} > \sigma_{ix} + \omega_{x}
-```
+$$
 
 * Future work will aim to include increased speciation rates that are tied to environmental conditions. Increased speciation due to warming temperatures.
+
+![Trait Evolution and Speciation](./main/images/evolv_fig_v2.png)
 
 ## Simulation Initialization
 
