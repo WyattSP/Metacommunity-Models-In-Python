@@ -86,7 +86,9 @@ The most complicated aspect of this model, and the area by which it varies the m
 
 * Future work will aim to include increased speciation rates that are tied to environmental conditions. Increased speciation due to warming temperatures.
 
-<img src="./main/images/git_speciation_fig.png" width=50% height=50% align:center>
+<p align="center">
+  <img src="./main/images/git_speciation_fig.png" width=50% height=50%>
+</p>
 
 ## Simulation Initialization
 
