@@ -25,7 +25,7 @@ Species interactions are determined according the the Beaverton-Holt equation as
 N_{ix}(t+1) = \frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
 ```
 
-![Equal and Stabalizing Species Interactions](./main/images/git_interactions_fig.png)
+![Equal and Stabalizing Species Interactions](./main/images/git_interactions_fig.png | width = 150)
 
 #### Environmental (abiotic) Effects
 
@@ -38,32 +38,33 @@ Growth rate within pyMCME is determined by the match between a species niche opt
 r_{ix}(t) = r_{max}e^{-(\frac{z_{i} - env_{x}(t)}{2\sigma_{i}})^2}
 ```
 
-![Effect of the Environment on Growth Rate](./main/images/git_growth_fig.png)
+![Effect of the Environment on Growth Rate](./main/images/git_growth_fig.png | width = 150)
 
 #### Demographic Stochasticity
 
 Following Thompson et al. (2020), demographic stochasticity is introduced into the model via a random population integer value drawn from a Poisson distribution prior to dispersal process by the following equation:
 
 ```math
-N_{ix}(t+1) = Poisson(max{\frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}, 0})
+N_{ix}(t+1) = Poisson(max{\frac{1}{1 + \sum{a_{ix}N_{jx}(t)}}, 0})
 ```
 
 ### Dispersal
 
 After each time-step individuals from within a habitat patch can disperse across the landscape based upon their density within each patch and a pre-defined dispersal rate. Dispersal distance follows a Poisson distribution according to the below equation. A probability of dispersal is then assigned based upon the density of species within a patch.
 
-* Future work will look to move beyond a stochastic dispersal process and instead link dispersal probability to the environment as well as to the strength of species interactions. This may be an ideal process to include as a tradeoff.    
-
-** Dispersal Distance **
 ```math
-I_{ix}(t) = \frac{\sum_{y != x}^{M}{E_{iy}(t)^{-L_{i}d_{x}}}}{\sum_{x = 1}^{M}{E_{ix}(t)}}
+I_{ix}(t) = \frac{\sum{E_{iy}(t)^{-L_{i}d_{x}}}}{\sum{E_{ix}(t)}}
 ```
+
+Future work will look to move beyond a stochastic dispersal process and instead link dispersal probability to the environment as well as to the strength of species interactions. This may be an ideal process to include as a tradeoff.    
 
 The full equation that determines population abundance within each patch is as follows, with the a Poisson value drawn from the right side of the equation, excluding immigration and emigration.
 
-$$N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)$$
+```math
+N_{ix}(t+1) = r_{ix}N_{ix}(t)\frac{1}{1 + \sum{a_{ix}N_{jx}(t)}}-E_{ix}(t) + I_{ix}(t)
 
-![Dispersal](./main/images/git_dispersal_fig.png)
+```
+![Dispersal](./main/images/git_dispersal_fig.png | width = 150)
 
 ### Trait Evolution and Speciation
 
@@ -85,7 +86,7 @@ The most complicated aspect of this model, and the area by which it varies the m
 
 * Future work will aim to include increased speciation rates that are tied to environmental conditions. Increased speciation due to warming temperatures.
 
-![Trait Evolution and Speciation](./main/images/git_speciation_fig.png)
+![Trait Evolution and Speciation](./main/images/git_speciation_fig.png | width = 150)
 
 ## Simulation Initialization
 
