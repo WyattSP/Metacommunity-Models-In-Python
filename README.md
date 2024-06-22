@@ -18,14 +18,13 @@ The model, which will be referred to as pyMCME, operates through four major proc
 
 Species interactions are determined according the the Beaverton-Holt equation as described in Thompson et al. (2020). Species interaction strengths are assigned using the MCME_Functions.initalize_aij function whereby the interaction category needs to be defined (stabalizing, equal, mixed, neutral) as well as the numerical range of the interactions for the stabalizing and mixed interaction categories. For the mixed category, a percentage of competitively superior species needs to be provided, which is ignored in all of the other catagories. During speciation events, new species interaction coefficients are redrawn from the range provided within the initialization stage. Furthermore, interaction strengths are multiplied by 0.05 to increase interaction rates.
 
-* Future work will be to include in tradeoffs along multiple trait axes, including a trait axes related to dispersal ability.
-
-** Beaverton-Holt Equation **
 ```math
-N_{ix}(t+1) = \frac{1}{1 + \sum_{j = 1}^{S}{a_{ix}N_{jx}(t)}}
+N_{ix}(t+1) = \frac{1}{1 + \sum{a_{ix}N_{jx}(t)}}
 ```
 
-![Equal and Stabalizing Species Interactions](./main/images/git_interactions_fig.png | width = 150)
+Future work will be to include in tradeoffs along multiple trait axes, including a trait axes related to dispersal ability.
+
+<img src="./main/images/git_interactions_fig.png" width=50% height=50%>
 
 #### Environmental (abiotic) Effects
 
