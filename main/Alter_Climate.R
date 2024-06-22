@@ -42,7 +42,7 @@ remove.timeSeries.variance <- function(timeseries, lfreq, hfreq, plot.spec = T){
   # Set new frequency with additional points
   # Get index values for frequency reset
   zero_freq_index <- which(freq >= lfreq & freq <= hfreq)
-  # Change frequencies to zero; phases don't matter 
+  # Change frequencies to zero; phases don't matter
   amp[as.vector(zero_freq_index)] <- 0
   phase[as.vector(zero_freq_index)] <- 0
   #######################
@@ -81,7 +81,7 @@ remove.timeSeries.variance <- function(timeseries, lfreq, hfreq, plot.spec = T){
   return(X)
 }
 
-# Time series we are working with 
+# Time series we are working with
 Spectra = co2 # define the spectra we want to extend
 
 test_s <- Tmax_4kyr[50,43,]

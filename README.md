@@ -4,6 +4,8 @@ This library aims to implement the metacommunity model outlined within Leibhold 
 
 This model numerically simulates a network of habitat patches (or local communities) that are connected by dispersal. The metacommunity framework includes all of the normal archetypes as described by Leibhold and Chase (2018), with the addition of trait evolution and speciation.  
 
+![Key Metacommunity Model Processes](./main/images/eco-evo-fig.png)
+
 ## Model Framework
 
 At the core of this general simulation model is an array of spatially explicit habitat patches with a dynamic environment that can change over a pre-defined temporal extent and resolution. As such, the user must provide information regarding the number of patches, their spatial orientation, and changes in it's climatic conditions. This model was built to handle HadCM3 climate data imported as a raster stack. However, data can be imported from a NetCDF4 file, but assurances need to be made that the spatial resolution matches that of a standard terrestrial HadCM3 simulation (3.75 by 2.5).   
@@ -74,14 +76,14 @@ The most complicated aspect of this model, and the area by which it varies the m
 
 ** Speciation **
 ```math
-\frac{sum_{x = 1}^{M}}{N_{ix}} > \sigma_{ix} + \omega
+\mu_{ix}^{M} > \sigma_{ix} + \omega_{x}
 ```
 
 * Future work will aim to include increased speciation rates that are tied to environmental conditions. Increased speciation due to warming temperatures.
 
 ## Simulation Initialization
 
-Simulations are initialized at the beginning of each experiment based upon a starting number of patches and species. Currently, habitat patches are derived from the HadCM3 climate model simulations, with graph distances calculated based on each gridcell latitude and longitude positions. Habitat patches are drawn randomly from a total map extent. A user can define the desired patch coordinates for the HadCM3 climate inputs.
+Simulations are initialized at the beginning of each experiment based upon a starting number of patches and species. Currently, habitat patches are derived from the HadCM3 climate model simulations, with graph distances calculated based on each gridcells latitude and longitude positions. Habitat patches are drawn randomly from a total map extent. A user can define the desired patch coordinates for the HadCM3 climate inputs.
 
 * Future work will aim to accommodate the CHELSA-Trace21K climate ensemble data.
 
