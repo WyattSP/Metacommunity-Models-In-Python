@@ -6,7 +6,11 @@ This model numerically simulates a network of habitat patches (or local communit
 
 ![Key Metacommunity Model Processes](./main/images/eco-evo-fig.png)
 
-Note: Although pyMCME produces a phylogeny at the end of each simulation. The current format is unusable for most, if not all, tree plotting softwares. A major rewrite is required.
+Note:
+* Although pyMCME produces a phylogeny at the end of each simulation. The current format is unusable for most, if not all, tree plotting softwares. A major rewrite is required.
+* If running pyMCME on a cluster it may be advisable to remove the dynamic progress bar from the main function.
+* If running pyMCME from an ide like Spyder there may be a runtime penalty from VSCode. If you profile the simulation you will likely observe a large percentage of processing time attributed to threading (issue with VSCode). Running pyMCME from the terminal or a bash script is the best way to improve simulation runtime performance.
+* Simulation runs on Numpy 2.0.0
 
 ## Model Framework
 
@@ -126,7 +130,7 @@ Simulation output:
 
 ### Example Dynamics
 
-Simulation of South America initially seeded with 25 founder species under stabilizing interactions. Simulation was run for 100 seeding steps, 100 burnin steps, and 500 model steps using the HadCM3BB_Long climate reconstructions from 2-million-years-ago to present (Farnsworth and Valdes 2022). Dispersal distance was 0.1 per step, speciation threshold of 0.25, ,max growth rate of 5, and niche breadth $\sigma = 0.5$
+Simulation of South America initially seeded with 25 founder species under stabilizing interactions. Simulation was run for 100 seeding steps, 100 burnin steps, and 500 model steps using the HadCM3BB_Long climate reconstructions from 2-million-years-ago to present (Farnsworth and Valdes 2022). Dispersal distance was 0.1 per step, speciation threshold of 0.25, ,max growth rate of 5, and niche breadth $\sigma = 0.5$.
 
 <p align="center">
   <img src="./main/images/SA_100kya_Map.gif" width=50% height=50%>
@@ -155,3 +159,23 @@ The idea behind the climate smoothing methods is to exclude high-frequency varia
 <p align="center">
   <img src="./main/images/git_frequency_domain_env.png" width=50% height=50%>
 </p>
+
+The below two videos illustrate the role of climate variance on population dynamics for a randomly chosen grid cell from within the simulation.
+
+### High Variance Climate Forcing (4 kya steps)
+
+<p align="center">
+  <img src="./main/images/git_narrow_sim_exp.gif" width=50% height=50%>
+</p>
+
+### Low Variance Climate Forcing (100 kya steps)
+
+<p align="center">
+  <img src="./main/images/git_broad_sim_exp.gif" width=50% height=50%>
+</p>
+
+### Comparison of Model Dynamics
+
+#### Broad Niche Breadth
+
+#### Narrow Niche Breadth
