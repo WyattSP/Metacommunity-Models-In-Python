@@ -1,6 +1,6 @@
 # Python Metacommunity Models (pyMCME)
 
-This library aims to implement the metacommunity model outlined within Thompson et al. (2020) in an efficient, python-based, framework to later study community dynamics with the Haar flucutation wavelet outlined by Lovejoy (2016).
+This library aims to implement the metacommunity model outlined within Thompson et al. (2020) in an efficient, python-based, framework.
 
 This model numerically simulates a network of habitat patches (or local communities) that are connected by dispersal. The metacommunity framework includes all of the typical archetypes (Leibold and Chase 2018), with the addition of trait evolution and speciation.  
 
