@@ -1,4 +1,4 @@
-propertiesbetween# Python Metacommunity Models (pyMCME)
+# Python Metacommunity Models (pyMCME)
 
 This library aims to implement the metacommunity model outlined within Leibhold and Chase (2018) in an efficient, python-based, framework to later study community dynamics using the Haar flucutation wavelet outlined by Lovejoy (2015).
 
@@ -208,4 +208,4 @@ The effects of time step choice has much more pronounced impacts under narrow ni
 
 ### Conclusions
 
-Time step choice can have dramatic effects on simulation dynamics and community properties under different parameter combinations. Just as with any parameter chosen within these models, time step needs to be carefully considered as it can dramatically change community properties throughout the duration of the simulation, species evenness, and geographic locations of speciation and extinction. 
+Time step choice can have dramatic effects on simulation dynamics and community properties under different parameter combinations. Just as with any parameter chosen within these models, time step needs to be carefully considered as it can dramatically change community properties throughout the duration of the simulation, species evenness, and geographic locations of speciation and extinction.
