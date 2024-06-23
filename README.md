@@ -1,10 +1,18 @@
-# Python Metacommunity Models (pyMCME)
+propertiesbetween# Python Metacommunity Models (pyMCME)
 
 This library aims to implement the metacommunity model outlined within Leibhold and Chase (2018) in an efficient, python-based, framework to later study community dynamics using the Haar flucutation wavelet outlined by Lovejoy (2015).
 
 This model numerically simulates a network of habitat patches (or local communities) that are connected by dispersal. The metacommunity framework includes all of the normal archetypes as described by Leibhold and Chase (2018), with the addition of trait evolution and speciation.  
 
 ![Key Metacommunity Model Processes](./main/images/eco-evo-fig.png)
+
+Main Repository Functions:
+- MCME_Allopatric.py: Main simulation function.
+- Climate_Import.py: Functions to import and manipulate climate data.
+- MCME_Functions.py: Internal functions for the simulation. You should not need to edit these.
+- MCME_Properties_Functions.py: Functions to calculate alpha, gamma, and temporal gamma diversity metrics.
+- MCME_Plot_Functions.py: Functions to plot simulation results.
+- MCME_Demo.py: Demonstration file for simulation.
 
 Note:
 * Although pyMCME produces a phylogeny at the end of each simulation. The current format is unusable for most, if not all, tree plotting softwares. A major rewrite is required.
@@ -176,6 +184,28 @@ The below two videos illustrate the role of climate variance on population dynam
 
 ### Comparison of Model Dynamics
 
+Depending upon the selected niche breadth the effects of time step selection will have different results.
+
 #### Broad Niche Breadth
 
+For a broad niche ($\sigma >= 2$) alpha and gamma diversity appear almost indistinguishable under stabilizing and equal interactions with variable time steps. However, as illustrated within the second figure, species evenness increases under lower variance.
+
+<p align="center">
+  <img src="./main/images/Slide8.png" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/Slide9.png" width=50% height=50%>
+</p>
+
 #### Narrow Niche Breadth
+
+The effects of time step choice has much more pronounced impacts under narrow niche values with higher rates of speciation (reduced speciation threshold). This figure illustrates the large discrepancy between alpha and gamma diversity between simulations under the 4 kya variance structure versus the 100 kya structure. Species evenness is also increased under the lower variance scenario as above.
+
+<p align="center">
+  <img src="./main/images/Slide10.png" width=50% height=50%>
+</p>
+
+### Conclusions
+
+Time step choice can have dramatic effects on simulation dynamics and community properties under different parameter combinations. Just as with any parameter chosen within these models, time step needs to be carefully considered as it can dramatically change community properties throughout the duration of the simulation, species evenness, and geographic locations of speciation and extinction. 
