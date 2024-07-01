@@ -1,4 +1,4 @@
-mechanismsgradientslatitudinal# Python Metacommunity Models (pyMCME)
+# Python Metacommunity Models (pyMCME)
 
 This library aims to implement the metacommunity model outlined within Thompson et al. (2020) employing the Beverton-Holt discrete time logistic growth model in an efficient, python-based, framework (Beverton and Holt 1957).
 
