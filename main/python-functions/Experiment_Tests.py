@@ -24,6 +24,7 @@ import Climate_Import
 import pandas as pd
 import random
 import math
+import matplotlib
 
 ### General improvements for speed
 # Convert distance matrix to off-diagonal (upper or lower triangle) only, or sparse-matrix
@@ -368,8 +369,65 @@ axs[3].set_ylabel('Log Power')
 fig.legend(labels=['4 kya', '16 kya', '40 kya', '100 kya'], loc='lower left', 
            shadow=False, ncol=4, bbox_to_anchor=(0.075, 0.05))
 
-fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/mean_climates.png', format='png', dpi=300, transparent=False)
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/fourier_plot_climates.png', format='png', dpi=300, transparent=False)
 
 
+####
+import matplotlib.pyplot as plt
+from scipy.signal import freqz, lfilter, butter
+lowcut = 0.25
 
+def butter_bandpass(lowcut, fs = 4, order=5):
+    nyq = 0.5
+    low = lowcut / nyq
+    b, a = butter(order, low, btype='low')
+    return b, a
+
+def butter_bandpass_filter(data, lowcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+
+# Plot the frequency response for a few different orders.
+plt.figure(1)
+plt.clf()
+for order in [1, 2 , 6, 9, 25]:
+    b, a = butter_bandpass(lowcut, order)
+    w, h = freqz(b, a, worN=2000)
+    plt.plot((0.5 * 4 / np.pi) * w, abs(h), label="order = %d" % order)
+
+    plt.plot([0, 0.5 * 4], [np.sqrt(0.5), np.sqrt(0.5)],
+             '--', label='sqrt(0.5)')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Gain')
+    plt.grid(True)
+    plt.legend(loc='best')
+
+
+BFc16 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:], lpass = lfreq_1, order = 2)
+BFc40 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:], lpass = lfreq_2, order = 2)
+BFc100 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:],lpass = lfreq_3, order = 2)
+
+# Mean Butterworths
+Bfc16_mean = np.mean(BFc16,1)
+Bfc40_mean = np.mean(BFc40,1)
+Bfc100_mean = np.mean(BFc100,1)
+
+Bfc16_fr, Bfc16_sp = signal.periodogram(Bfc16_mean, detrend="constant")
+Bfc40_fr, Bfc40_sp = signal.periodogram(Bfc40_mean, detrend="constant")
+Bfc100_fr, Bfc100_sp = signal.periodogram(Bfc100_mean, detrend="constant")
+
+
+# The acutal plot
+fig, axs = plt.subplots(1, 1, figsize=(12, 8))
+plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+# Butterworth Plot
+axs.plot((Bfc16_fr), np.log(Bfc16_sp))
+axs.plot((Bfc40_fr), np.log(Bfc40_sp))
+axs.plot((Bfc100_fr), np.log(Bfc100_sp))
+axs.set_ylabel('Log Power')
+axs.axvline(x=0.25)
+axs.axvline(x=0.1)
+axs.axvline(x=0.04)
 

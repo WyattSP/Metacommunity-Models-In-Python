@@ -160,8 +160,6 @@ To explore the role of dt on model dynamics an example is presented below using 
 
 Simulation dt was altered via two methods: 1) an interpolation smoothing technique; and 2) alteration to the time series Fourier coefficients, for paleoclimate reconstructions derived from Farnsworth and Valdes (2020). The below figure illustrates the effects of time series smoothing under each method within the time domain, followed by another figure in the frequency domain. The important conclusion from each of these figures is that the alteration of dt within the paleoclimate time series alters both the occurrence of periodic and quasi-periodic forcings, but also the time series temporal autocorrelation (slope in the frequency domain). It needs to be noted that to ensure model parameterization was held constant between all simulation runs, the number of observations contained within the time series had to be held constant (constant n-observations). Thus alterations in dt are effectively a low-pass filter that excludes high-frequency signal.
 
-* Need to upload draft quality figures for the time and frequency domain plots of the environmental data.
-
 <p align="center">
   <img src="./main/images/git_time_domain-env.png" width=50% height=50%>
 </p>
