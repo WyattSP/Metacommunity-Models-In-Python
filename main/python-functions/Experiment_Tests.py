@@ -316,10 +316,59 @@ fig.legend(labels=['4 kya', '16 kya', '40 kya', '100 kya'], loc='lower left',
 
 fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/mean_climates.png', format='png', dpi=300, transparent=False)
 
-###############################
-#### Plot Frequency Domain ####
-###############################
+#########################################
+# Plot of Climate Fourier Transformed #
+#########################################
+from scipy import signal
+# Original
+Or_fr, Sp_fr = signal.periodogram(climate_mean, detrend="constant")
+# Butterworth
+Bfc16_fr, Bfc16_sp = signal.periodogram(Bfc16_mean, detrend="constant")
+Bfc40_fr, Bfc40_sp = signal.periodogram(Bfc40_mean, detrend="constant")
+Bfc100_fr, Bfc100_sp = signal.periodogram(Bfc100_mean, detrend="constant")
+# Fourier
+freq_f12, spec_f12 = signal.periodogram(fC16_mean, detrend="constant")
+freq_f40, spec_f40 = signal.periodogram(fC40_mean, detrend="constant")
+freq_f100, spec_f100 = signal.periodogram(fC100_mean, detrend="constant")
+# Smoothed
+Sif12_fr, Sif12_sp = signal.periodogram(Sc16_mean, detrend="constant")
+Sif40_fr, Sif40_sp = signal.periodogram(Sc40_mean, detrend="constant")
+Sif100_fr, Sif100_sp = signal.periodogram(Sc100_mean, detrend="constant")
 
+# The acutal plot
+fig, axs = plt.subplots(4, 1, figsize=(12, 8))
+plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+# Plot of Original Data
+axs[0].plot(np.log(Or_fr), np.log(Sp_fr), c = "black")
+axs[0].set_ylim([-14, 6])
+axs[0].text(-6, -13,'PSD Mean Untransformed Climate')
+axs[0].set_ylabel('Log Power')
+# Butterworth Plot
+axs[1].plot(np.log(Bfc16_fr), np.log(Bfc16_sp))
+axs[1].plot(np.log(Bfc40_fr), np.log(Bfc40_sp))
+axs[1].plot(np.log(Bfc100_fr), np.log(Bfc100_sp))
+axs[1].set_ylim([-14, 6])
+axs[1].text(-6, -13,'PSD Mean Butterworth Climate')
+axs[1].set_ylabel('Log Power')
+# Fourier Plot
+axs[2].plot(np.log(freq_f12), np.log(spec_f12))
+axs[2].plot(np.log(freq_f40), np.log(spec_f40))
+axs[2].plot(np.log(freq_f100), np.log(spec_f100))
+axs[2].text(-6, -72,'PSD Mean Fourier Climate')
+axs[2].set_ylabel('Log Power')
+# Smooth Interpolated Plot
+axs[3].plot(np.log(Sif12_fr), np.log(Sif12_sp))
+axs[3].plot(np.log(Sif40_fr), np.log(Sif40_sp))
+axs[3].plot(np.log(Sif100_fr), np.log(Sif100_sp))
+axs[3].set_ylim([-14, 6])
+axs[3].text(-6, -13,'PSD Mean Smooth Interpolated Climate')
+axs[3].set_xlabel("Log Frequency ")
+axs[3].set_ylabel('Log Power')
+# Legend
+fig.legend(labels=['4 kya', '16 kya', '40 kya', '100 kya'], loc='lower left', 
+           shadow=False, ncol=4, bbox_to_anchor=(0.075, 0.05))
+
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/mean_climates.png', format='png', dpi=300, transparent=False)
 
 
 
