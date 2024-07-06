@@ -17,6 +17,7 @@ import MC_Properies_Functions
 import numpy as np
 from MCME_Plot_Functions import mcme_plot, species_richness_plot, plot_origination_extinction, plot_richness_map, get_richness
 import MCME_Plot_Functions
+import butterworth_filter
 import matplotlib.pyplot as plt
 import sys
 import Climate_Import
@@ -93,6 +94,24 @@ lfreq_3 = round(1 / (100 / sample_rate), 3)
 fClimate_16kya = Climate_Import.get_fourier_smooth_climate(climate_4kya[1:], lfreq_1, 0.5)
 fClimate_40kya = Climate_Import.get_fourier_smooth_climate(climate_4kya[1:], lfreq_2, 0.5)
 fClimate_100kya = Climate_Import.get_fourier_smooth_climate(climate_4kya[1:], lfreq_3, 0.5)
+
+##########################################
+#      Butterworth Low-Pass Filter       #
+##########################################
+sample_rate = 4 # t series sample rate
+# double sampling 4 * 3 = 16 kya
+lfreq_1 = round(1 / (16 / sample_rate), 3)
+# 10 times sampling 4 * 10 = 40 kya
+lfreq_2 = round(1 / (40 / sample_rate), 3)
+# 25 times sampling 4 * 25 = 100 kya
+lfreq_3 = round(1 / (100 / sample_rate), 3)
+
+# Note that for evenly spaced data you will use analog = False in the butter function 
+lowpass_freq = list([lfreq_1, lfreq_2, lfreq_3])
+
+BFc16 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:], lpass = lfreq_1, order = 9)
+BFc40 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:], lpass = lfreq_2, order = 9)
+BFc100 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:],lpass = lfreq_3, order = 9)
 
 ###################################
 #    Set up Model Parameters      #
@@ -225,6 +244,17 @@ plot_richness_map(results[-1], Clim_array, coord_index, False)
 
 #np.savetxt("/Users/wyattpetryshen/Documents/GitHub/Metacommunity-Models-In-Python/test_out_raster.csv", t, delimiter=",")
 
+##########################################
+#             Butter Plot                #
+##########################################
 
+fig, axs = plt.subplots(3, 1, figsize=(12, 8))
+axs[1].plot(range(901), Tmax_4kyr[40,25,:])
+for lowpass in lowpass_freq:
+    b, a = butter(N = 9, Wn = lowpass, btype = 'low',analog=False)
+    w, h = freqz(b, a, worN= 901)
+    y = filtfilt(b, a, Tmax_4kyr[40,25,:])
+    axs[0].plot(w, abs(h))
+    axs[2].plot(range(901), y)
 
 
