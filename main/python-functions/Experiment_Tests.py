@@ -77,6 +77,13 @@ distance_matrix = MCME_Functions.get_graph_distance_matrix_HadCM3(coords)
 
 # Native resolution climate for desired coordinates
 climate_4kya = Climate_Import.return_climate_array(coords, 400, 901, Tmax_4kyr) - 273.5
+
+# Interpolated Climate
+# Resample at new intervals
+climate_16kya = Climate_Import.interpolate_climate_array(climate_4kya, 4) # skip every second points
+climate_40kya = Climate_Import.interpolate_climate_array(climate_4kya, 10) # skip every fifteen points
+climate_100kya = Climate_Import.interpolate_climate_array(climate_4kya, 25) # skip every fifty points
+
 ######################################
 #       Fourier Smooth Climate       #
 ######################################
@@ -245,16 +252,75 @@ plot_richness_map(results[-1], Clim_array, coord_index, False)
 #np.savetxt("/Users/wyattpetryshen/Documents/GitHub/Metacommunity-Models-In-Python/test_out_raster.csv", t, delimiter=",")
 
 ##########################################
-#             Butter Plot                #
+#        Plots of Climate Inputs         #
 ##########################################
+# Mean Climate Untransformed
+climate_mean = np.mean(climate_4kya[1:],1)
+# Mean Butterworths
+Bfc16_mean = np.mean(BFc16,1)
+Bfc40_mean = np.mean(BFc40,1)
+Bfc100_mean = np.mean(BFc100,1)
+# Mean Fourier
+fC16_mean = np.mean(fClimate_16kya, 1)
+fC40_mean = np.mean(fClimate_40kya, 1)
+fC100_mean = np.mean(fClimate_100kya, 1)
+# Mean Interpolations
+Sc16_mean = np.mean(climate_16kya, 1)
+Sc40_mean = np.mean(climate_40kya, 1)
+Sc100_mean = np.mean(climate_100kya, 1)
 
-fig, axs = plt.subplots(3, 1, figsize=(12, 8))
-axs[1].plot(range(901), Tmax_4kyr[40,25,:])
-for lowpass in lowpass_freq:
-    b, a = butter(N = 9, Wn = lowpass, btype = 'low',analog=False)
-    w, h = freqz(b, a, worN= 901)
-    y = filtfilt(b, a, Tmax_4kyr[40,25,:])
-    axs[0].plot(w, abs(h))
-    axs[2].plot(range(901), y)
+##########################
+#### Plot Time Domain ####
+##########################
+fig, axs = plt.subplots(4, 1, figsize=(12, 8))
+plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+# Plot of Original Data
+axs[0].plot(range(len(climate_mean)), climate_mean, c = "black")
+axs[0].set_ylim([23, 28])
+axs[0].text(0, 23.25,'Mean Untransformed Climate')
+axs[0].xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
+axs[0].xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
+axs[0].set_ylabel('Temperature (\u00B0C)')
+
+# Butterworth Plot
+axs[1].plot(range(len(Bfc16_mean)), Bfc16_mean)
+axs[1].plot(range(len(Bfc40_mean)), Bfc40_mean)
+axs[1].plot(range(len(Bfc100_mean)), Bfc100_mean)
+axs[1].set_ylim([23, 28])
+axs[1].text(0, 23.25,'Mean Butterworth Climate')
+axs[1].xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
+axs[1].xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
+axs[1].set_ylabel('Temperature (\u00B0C)')
+# Fourier Plot
+axs[2].plot(range(len(fC16_mean)), fC16_mean)
+axs[2].plot(range(len(fC40_mean)), fC40_mean)
+axs[2].plot(range(len(fC100_mean)), fC100_mean)
+axs[2].set_ylim([23, 28])
+axs[2].text(0, 23.25,'Mean Fourier Climate')
+axs[2].xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
+axs[2].xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
+axs[2].set_ylabel('Temperature (\u00B0C)')
+# Smooth Interpolated Plot
+axs[3].plot(range(len(Sc16_mean)), Sc16_mean)
+axs[3].plot(range(len(Sc40_mean)), Sc40_mean)
+axs[3].plot(range(len(Sc100_mean)), Sc100_mean)
+axs[3].set_ylim([23, 28])
+axs[3].text(0, 23.25,'Mean Smooth Interpolated Climate')
+axs[3].xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
+axs[3].xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
+axs[3].set_xlabel("Thousand Years")
+axs[3].set_ylabel('Temperature (\u00B0C)')
+# Legend
+fig.legend(labels=['4 kya', '16 kya', '40 kya', '100 kya'], loc='lower left', 
+           shadow=False, ncol=4, bbox_to_anchor=(0.075, 0.05))
+
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/mean_climates.png', format='png', dpi=300, transparent=False)
+
+###############################
+#### Plot Frequency Domain ####
+###############################
+
+
+
 
 
