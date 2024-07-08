@@ -158,7 +158,7 @@ A key aspect and strength within eco-evolutionary simulations (general simulatio
 
 To explore the role of dt on model dynamics an example is presented below using the pyMCME model run under different scenarios of climate resolution (i.e., dt). Simulations were run under identical parameter values for a stabilizing and equal interactions scenario, as well as a broad and narrow niche breadth scenario.
 
-Simulation dt was altered via two methods: 1) an interpolation smoothing technique; and 2) alteration to the time series Fourier coefficients, for paleoclimate reconstructions derived from Farnsworth and Valdes (2020). The below figure illustrates the effects of time series smoothing under each method within the time domain, followed by another figure in the frequency domain. The important conclusion from each of these figures is that the alteration of dt within the paleoclimate time series alters both the occurrence of periodic and quasi-periodic forcings, but also the time series temporal autocorrelation (slope in the frequency domain). It needs to be noted that to ensure model parameterization was held constant between all simulation runs, the number of observations contained within the time series had to be held constant (constant n-observations). Thus alterations in dt are effectively a low-pass filter that excludes high-frequency signal.
+Simulation dt was altered via three methods: 1) an interpolation smoothing technique; 2) a lowpass Butterworth filter; and 3) alteration to the time series Fourier coefficients, for paleoclimate reconstructions derived from Farnsworth and Valdes (2020). The below figure illustrates the effects of time series smoothing under each method within the time domain, followed by another figure in the frequency domain. The important conclusion from each of these figures is that the alteration of dt within the paleoclimate time series alters both the occurrence of periodic and quasi-periodic forcings, but also the time series temporal autocorrelation (slope in the frequency domain). It needs to be noted that to ensure model parameterization was held constant between all simulation runs, the number of observations contained within the time series had to be held constant (constant n-observations). Thus alterations in dt are effectively a low-pass filter that excludes high-frequency signal.
 
 <p align="center">
   <img src="./main/images/git_time_domain-env.png" width=50% height=50%>
@@ -170,17 +170,30 @@ Simulation dt was altered via two methods: 1) an interpolation smoothing techniq
 
 The below two videos illustrate the role of climate variance on population dynamics for a randomly chosen grid cell from within the simulation.
 
-### High Variance Climate Forcing (4 kya steps)
+### Wide Niche High Variance Climate Forcing under Stabilizing Interactions (16 kya steps)
 
 <p align="center">
-  <img src="./main/images/git_narrow_sim_exp.gif" width=50% height=50%>
+  <img src="./main/images/Wide_Butter_Cell_9_16kya_Trait_Dynamics.gif" width=50% height=50%>
 </p>
 
-### Low Variance Climate Forcing (100 kya steps)
+### Wide Niche Low Variance Climate Forcing under Stabilizing Interactions (100 kya steps)
 
 <p align="center">
-  <img src="./main/images/git_broad_sim_exp.gif" width=50% height=50%>
+  <img src="./main/images/Wide_Butter_Cell_9_100kya_Trait_Dynamics.gif" width=50% height=50%>
 </p>
+
+### Narrow Niche High Variance Climate Forcing under Stabilizing Interactions (4 kya steps; Original Resolution Climate Time Series)
+
+<p align="center">
+  <img src="./main/images/Narrow_Cell_9_4kya_Trait_Dynamics.gif.gif" width=50% height=50%>
+</p>
+
+### Narrow Niche Low Variance Climate Forcing under Stabilizing Interactions (100 kya steps)
+
+<p align="center">
+  <img src="./main/images/Narrow_Butter_Cell_9_100kya_Trait_Dynamics.gif.gif" width=50% height=50%>
+</p>
+
 
 ### Comparison of Model Dynamics
 

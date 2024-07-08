@@ -6,14 +6,14 @@ Created on Mon May 27 17:59:42 2024
 @author: wyattpetryshen
 """
 
-# Import climate data from .rds files 
+# Import climate data from .rds files
 import pyreadr # this library allows for .rds files to be imported
 import rasterio # this allows for raster files to be imported
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
 import scipy
-#import 
+#import
 #import rioxarray # Need to pip install this...
 
 def import_climate_data(path_to_file, file_type, engine):
@@ -21,12 +21,12 @@ def import_climate_data(path_to_file, file_type, engine):
         print("Import RDS file.")
         # This may be very very unstable and will not work with S4 R objects. I do not know about S3 objects.
         # https://github.com/ofajardo/pyreadr
-        file = pyreadr.read_r(path_to_file) 
+        file = pyreadr.read_r(path_to_file)
         print("Import Complete")
         return(file)
     elif file_type == "Geotif" and engine == "rasterio":
         print("Importing Raster file.")
-        # This is likely the most stable and reliable way to import data as a Geotif 
+        # This is likely the most stable and reliable way to import data as a Geotif
         file = rasterio.open(path_to_file)
         # Create empty array to store climate data
         climate_array = np.empty((file.shape[0], file.shape[1], file.count))
@@ -42,10 +42,10 @@ def import_climate_data(path_to_file, file_type, engine):
     #    return(x_array_obj)
     else:
         return(print("Incorrect file type provided."))
-    
+
 
 def return_climate_array(coord_list, start_index, end_index, global_HadCM3_climate):
-    # convert the lat lon into grid positions 
+    # convert the lat lon into grid positions
     # this assumes the 3.75 by 2.5 grid dimensions
     lat_centers = [90.0000,87.5000,85.0000,82.5000,80.0000,77.5000,75.0000,72.5000,
                  70.0000,67.5000,65.0000,62.5000,60.0000,57.5000,55.0000,52.5000,
@@ -69,18 +69,18 @@ def return_climate_array(coord_list, start_index, end_index, global_HadCM3_clima
                  270.0000,273.7500,277.5000,281.2500,285.0000,288.7500,292.5000,296.2500,
                  300.0000,303.7500,307.5000,311.2500,315.0000,318.7500,322.5000,326.2500,
                  330.0000,333.7500,337.5000,341.2500,345.0000,348.7500,352.5000,356.2500]
-    
-    #lat_centers = np.trim_zeros(lat_centers)  
-    #lon_centers = np.trim_zeros(lon_centers) 
 
-    coord_list = np.trim_zeros(coord_list) 
-    
+    #lat_centers = np.trim_zeros(lat_centers)
+    #lon_centers = np.trim_zeros(lon_centers)
+
+    coord_list = np.trim_zeros(coord_list)
+
     climate_out = np.zeros((end_index-start_index, len(coord_list)))
     count = 0
     for i in coord_list:
         index_lon = lon_centers.index(i[0])
         index_lat = lat_centers.index(i[1])
-        
+
         climate_out[:, count] = global_HadCM3_climate[index_lat, index_lon, start_index:end_index]
         count += 1
     return(climate_out)
@@ -92,7 +92,7 @@ def return_climate_array(coord_list, start_index, end_index, global_HadCM3_clima
 
 # Two potential methods:
     # 1) skipping every n-number of points and connecting
-    # 2) using a smoothing spline from scipy 
+    # 2) using a smoothing spline from scipy
 
 # Skipping n-points to remove high frequency variation
 
@@ -101,13 +101,13 @@ def linear_climate_interpolation(climate, sampling_interval, supress_warnings = 
 
     # Original step vector
     kya_2_step = np.arange(len(climate_in))
-    
+
     # Sample every second point
     step_interval = kya_2_step[0::sampling_interval]
-    
+
     # Index original time-series
     new_clim = climate_in[step_interval]
-    
+
     interp_climate = np.array([])
     # New climate interpolated
     for i in range(len(step_interval) - 1):
@@ -117,43 +117,43 @@ def linear_climate_interpolation(climate, sampling_interval, supress_warnings = 
         # Set climate values Y
         cs_index = new_clim[i]
         ce_index = new_clim[i + 1]
-        
+
         # New point indexes
         new_i =  np.zeros(sampling_interval-1)
         next_i = s_index + 1
         for i in range(len(new_i)):
             new_i[i] = next_i
             next_i += 1
-        
+
         # Get new points using a linear interpolation
         new_point = np.interp(new_i, [s_index,e_index], [cs_index,ce_index])
-        
+
         # Combine point into array
         in_stack = np.hstack([cs_index, new_point])
-        
+
         # Add to master array
         interp_climate = np.hstack([interp_climate,in_stack])
-    
+
     # Add end point
     end_c = new_clim[-1]
     interp_climate = np.hstack([interp_climate,end_c])
-    
+
     # Check lengths and throw warning if not equal to original
     if len(kya_2_step) != len(interp_climate):
         if supress_warnings == True:
             print("Warning: Climte input and function output lengths are different %d" % len(kya_2_step), "versus %d" % len(interp_climate))
-    
+
     return(interp_climate)
 
 def interpolate_climate_array(climate_array, sampling_interval):
     # Define new empty array
     new_array = np.zeros(climate_array.shape)
-    
-    # Sample each column 
+
+    # Sample each column
     for cols in range(climate_array.shape[1]):
         new_vec = linear_climate_interpolation(climate_array[:,cols], sampling_interval)
         new_array[:,cols] = new_vec
-        
+
     return(new_array)
 
 def fourier_smooth_climate(climate_array, lfreq, hfreq, plot_spec_matplot = True, plot_scipy = False, verbose = False):
@@ -168,11 +168,11 @@ def fourier_smooth_climate(climate_array, lfreq, hfreq, plot_spec_matplot = True
     else:
         if verbose == True:
             print("Spectra is even")
-        
+
     # Set frequency interval
     lfreq = lfreq
     hfreq = hfreq
-    
+
     #### Scipy implementation with rfft, rfftfreq, irfft
     # fourier coefficients
     rfft = scipy.fft.rfft(spectra)
@@ -193,12 +193,12 @@ def fourier_smooth_climate(climate_array, lfreq, hfreq, plot_spec_matplot = True
     zero_freq_index = np.where((rfreq >= lfreq) & (rfreq <= hfreq))[0]
     # Change frequencies to zero; phases don't matter
     amp[zero_freq_index] = 0
-    #phase[zero_freq_index] = 0 
-    # recompile time series 
+    #phase[zero_freq_index] = 0
+    # recompile time series
     new_series = np.array([complex(amp[i]*np.cos(phase[i]), amp[i]*np.sin(phase[i])) for i in range(len(rfreq))])
     # inverse rfft
     X = scipy.fft.irfft(new_series)
-    
+
     # FFT via numpy
     #s_fft = np.fft.fft(spectra)
     #mean = abs(s_fft[0])
@@ -215,7 +215,7 @@ def fourier_smooth_climate(climate_array, lfreq, hfreq, plot_spec_matplot = True
     #new_pseries = np.concatenate(([0], phase[1:n//2-1], [0], phase[n//2:]))
     #new_series = np.array([complex(new_aseries[i]*np.cos(new_pseries[i]), new_aseries[i]*np.sin(new_pseries[i])) for i in range(len(new_aseries))])
     #X = np.real(np.fft.ifft(new_series)) / n
-    
+
     # Check Lengths
     L = len(X)
     if L != n:
@@ -252,10 +252,10 @@ def fourier_smooth_climate(climate_array, lfreq, hfreq, plot_spec_matplot = True
         #plt.ylim([1e-7, 1e2])
         plt.xlabel('frequency [Hz]')
         plt.ylabel('PSD [V**2/Hz]')
-        plt.show()  
+        plt.show()
 
     return X
-    
+
 def get_timeseries_frequency_range(climate_array):
     spectra = climate_array
     n = len(spectra)
@@ -267,21 +267,19 @@ def get_timeseries_frequency_range(climate_array):
         print("Spectra is odd: dropped first observation at index = 0")
     else:
         print("Spectra is even")
-        
+
     rfreq = scipy.fft.rfftfreq(n)
     return(rfreq)
-        
+
 def get_fourier_smooth_climate(climate_array, lfreq, hfreq,):
     # Define new empty array
     new_array = np.zeros(climate_array.shape)
-    # Sample each column 
+    # Sample each column
     for cols in range(climate_array.shape[1]):
         new_vec = fourier_smooth_climate(climate_array[:,cols], lfreq, hfreq, False, False)
         new_array[:,cols] = new_vec
-        
+
     return(new_array)
-    
+
 def year_to_frequency(year, measurement_unit):
     return(1/(year/measurement_unit))
-    
-

@@ -143,7 +143,9 @@ niche_optimum_ini_100 = MCME_Functions.initial_species_niche_optimum(S, M, fClim
 dispersal_rate_ini = [0.01]
 
 # Niche Breadth
-niche_breadth = [0.5]
+niche_breadth = [2.5]
+# narrow = 0.5
+# wide = 2.5
 
 # Specify the speciation rate
 speciation_threshold = [0]
@@ -187,7 +189,7 @@ results_100, niche_opt_100, alpha_matrix_100, phylogeny_100, divergence_time_100
                                                                    speciation_threshold = 0.25,
                                                                    alpha_matrix_ini = alpha_matrix_stabalizing,
                                                                    distance_matrix = distance_matrix,
-                                                                   climate_input = fClimate_100kya,
+                                                                   climate_input = BFc100,
                                                                    niche_optimum_ini = niche_optimum_ini_100,
                                                                    dispersal_rate_ini = 0.1,
                                                                    niche_breadth_ini = 0.5,
@@ -229,8 +231,23 @@ print(end-start)
 gamma = MC_Properies_Functions.gamma_diversity(results_100)
 alpha = MC_Properies_Functions.alpha_richness(results_100)
 
-# t_gamma = MC_Properies_Functions.temporal_gamma_diversity(N_save)
+# Hill Numbers
+# Get mean hill numbers between all patchs? 
+# Let's try for the last time step
+ls_16 = MC_Properies_Functions.compare_patch_by_hill(results[-1], np.arange(0,4,1), 1, True)
+ls_100 = MC_Properies_Functions.compare_patch_by_hill(results_100[-1], np.arange(0,4,1), 1, True)
+# Plot of q orders
+MCME_Plot_Functions.plot_hill_number_maps(ls_100 - ls_16, Clim_array, coord_index, False)
 
+delta_ls_16 = MC_Properies_Functions.compare_hill_difference(results[-1], [0,2], 1, True)
+delta_ls_100 = MC_Properies_Functions.compare_hill_difference(results_100[-1], [0,2], 1, True)
+
+sum(delta_ls_16[~np.isnan(delta_ls_16)])
+sum(delta_ls_100[~np.isnan(delta_ls_100)])
+
+# Plot Hill differences
+MCME_Plot_Functions.plot_hill_difference_map(delta_ls_16, Clim_array, coord_index, False)
+MCME_Plot_Functions.plot_hill_difference_map(delta_ls_100, Clim_array, coord_index, False)
 #########################
 #          Plot         # 
 #########################
@@ -248,7 +265,7 @@ plt.plot(range(len(np.cumsum(orgination[:,1]))), np.cumsum(orgination[:,1]), c =
 plt.plot(range(len(np.cumsum(extinction[:,1]))), np.cumsum(extinction[:,1]), c = "red")
 
 # Plot map of geographic points with colours illustrating community richness
-plot_richness_map(results[-1], Clim_array, coord_index, False)
+plot_richness_map(results_100[-1], Clim_array, coord_index, False)
 
 #np.savetxt("/Users/wyattpetryshen/Documents/GitHub/Metacommunity-Models-In-Python/test_out_raster.csv", t, delimiter=",")
 
@@ -315,7 +332,7 @@ axs[3].set_ylabel('Temperature (\u00B0C)')
 fig.legend(labels=['4 kya', '16 kya', '40 kya', '100 kya'], loc='lower left', 
            shadow=False, ncol=4, bbox_to_anchor=(0.075, 0.05))
 
-fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/mean_climates.png', format='png', dpi=300, transparent=False)
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/git_time_domain-env.png', format='png', dpi=300, transparent=False)
 
 #########################################
 # Plot of Climate Fourier Transformed #
@@ -369,65 +386,4 @@ axs[3].set_ylabel('Log Power')
 fig.legend(labels=['4 kya', '16 kya', '40 kya', '100 kya'], loc='lower left', 
            shadow=False, ncol=4, bbox_to_anchor=(0.075, 0.05))
 
-fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/fourier_plot_climates.png', format='png', dpi=300, transparent=False)
-
-
-####
-import matplotlib.pyplot as plt
-from scipy.signal import freqz, lfilter, butter
-lowcut = 0.25
-
-def butter_bandpass(lowcut, fs = 4, order=5):
-    nyq = 0.5
-    low = lowcut / nyq
-    b, a = butter(order, low, btype='low')
-    return b, a
-
-def butter_bandpass_filter(data, lowcut, fs, order=5):
-    b, a = butter_bandpass(lowcut, fs, order=order)
-    y = lfilter(b, a, data)
-    return y
-
-
-# Plot the frequency response for a few different orders.
-plt.figure(1)
-plt.clf()
-for order in [1, 2 , 6, 9, 25]:
-    b, a = butter_bandpass(lowcut, order)
-    w, h = freqz(b, a, worN=2000)
-    plt.plot((0.5 * 4 / np.pi) * w, abs(h), label="order = %d" % order)
-
-    plt.plot([0, 0.5 * 4], [np.sqrt(0.5), np.sqrt(0.5)],
-             '--', label='sqrt(0.5)')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Gain')
-    plt.grid(True)
-    plt.legend(loc='best')
-
-
-BFc16 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:], lpass = lfreq_1, order = 2)
-BFc40 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:], lpass = lfreq_2, order = 2)
-BFc100 = butterworth_filter.get_the_butter(climate_array = climate_4kya[1:],lpass = lfreq_3, order = 2)
-
-# Mean Butterworths
-Bfc16_mean = np.mean(BFc16,1)
-Bfc40_mean = np.mean(BFc40,1)
-Bfc100_mean = np.mean(BFc100,1)
-
-Bfc16_fr, Bfc16_sp = signal.periodogram(Bfc16_mean, detrend="constant")
-Bfc40_fr, Bfc40_sp = signal.periodogram(Bfc40_mean, detrend="constant")
-Bfc100_fr, Bfc100_sp = signal.periodogram(Bfc100_mean, detrend="constant")
-
-
-# The acutal plot
-fig, axs = plt.subplots(1, 1, figsize=(12, 8))
-plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
-# Butterworth Plot
-axs.plot((Bfc16_fr), np.log(Bfc16_sp))
-axs.plot((Bfc40_fr), np.log(Bfc40_sp))
-axs.plot((Bfc100_fr), np.log(Bfc100_sp))
-axs.set_ylabel('Log Power')
-axs.axvline(x=0.25)
-axs.axvline(x=0.1)
-axs.axvline(x=0.04)
-
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/git_frequency_domain_env.png', format='png', dpi=300, transparent=False)

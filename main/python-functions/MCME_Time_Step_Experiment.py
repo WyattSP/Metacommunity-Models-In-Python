@@ -687,8 +687,6 @@ fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petrys
 
 
 #### Line plot of smoothed climate
-
-
 ##############################################
 #  Line Plot Example of Different Time Steps #
 ##############################################
