@@ -185,13 +185,13 @@ The below two videos illustrate the role of climate variance on population dynam
 ### Narrow Niche High Variance Climate Forcing under Stabilizing Interactions (4 kya steps; Original Resolution Climate Time Series)
 
 <p align="center">
-  <img src="./main/images/Narrow_Cell_9_4kya_Trait_Dynamics.gif.gif" width=50% height=50%>
+  <img src="./main/images/Narrow_Cell_9_4kya_Trait_Dynamics.gif" width=50% height=50%>
 </p>
 
 ### Narrow Niche Low Variance Climate Forcing under Stabilizing Interactions (100 kya steps)
 
 <p align="center">
-  <img src="./main/images/Narrow_Butter_Cell_9_100kya_Trait_Dynamics.gif.gif" width=50% height=50%>
+  <img src="./main/images/Narrow_Butter_Cell_9_100kya_Trait_Dynamics.gif" width=50% height=50%>
 </p>
 
 
