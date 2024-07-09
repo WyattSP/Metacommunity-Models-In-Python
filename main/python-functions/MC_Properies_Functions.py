@@ -110,8 +110,8 @@ def get_hill_difference(patch_occupancy, q_orders):
         qA_N = qA/qA
         qB_N = qB/qA
         # Get difference
-        # Value of 1 is perfectly even
-        # Value of 0 is perfectly uneven
+        # Value of 1 is perfectly uneven
+        # Value of 0 is perfectly even
         delta_N = qA_N - qB_N
     else:
         delta_N = "NaN"

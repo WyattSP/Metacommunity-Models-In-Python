@@ -1,4 +1,4 @@
-# Python Metacommunity Models (pyMCME)
+number# Python Metacommunity Models (pyMCME)
 
 This library aims to implement the metacommunity model outlined within Thompson et al. (2020) employing the Beverton-Holt discrete time logistic growth model in an efficient, python-based, framework (Beverton and Holt 1957).
 
@@ -222,6 +222,39 @@ The effects of time step choice has much more pronounced impacts under narrow ni
 ### Discussion
 
 #### Diversity Dynamics Under Alternative Step Size
+
+Hill numbers represent a simple framework to assess abundance weighted community diversity, parameterized by q-orders, that give varying degrees of weight to rare versus common species depending on the value of q (Hill 1973; Chao et al. 2014). For q = 0, all abundance weighted community diversity values will equal 1, with the N^{0} Hill number giving no preference to rare versus common taxa. This also yields a maximum Hill number for a community for all other chosen values of q. On the opposite end of the spectrum for q = 2 (or q &#8594 &#8734) a minimum Hill number will be produced that gives larger weight on common versus rare species. For a community that has an equal number of species at the same abundance, N^{0} = N^{2}, and for communities with a single dominant species N^{0} >> N^{2}.
+
+As a way to compare evenness between communities, a normalized vector can be defined between the maximum and minimum Hill numbers within a single community. If a community is perfectly even, the vertical component of the vector will be 0, while if the community is perfectly uneven, the vertical component of the vector will approach 1 (similar to Chao and Ricotta 2019).
+
+As a means to compare species evenness between the different simulations, the normalized vector comparing N^{0} - N^{2} was calculated for each time step in the simulations for each individual plot (P = 165). The relative number of patches with greater evenness were then compared between the simulations for each time step and plotted as a line plot (Normalized Proportion of $D^{0} - D^{2}$ between High - Low Variance). For any time step with a value > 0.5, the high-variance simulation had a higher proportion of uneven patches as compared to the low variance simulation.  
+
+a > b; a is more uneven
+
+```math
+{q}^D = \sum{(p_{i}^{q})^{1/(q-1)}}}; q > 0, q != 1
+```
+
+```math
+{1}^D = lim {q}^D = exp{-\sum{p_{i}logp_{i}}}
+```
+
+<p align="center">
+  <img src="./main/images/wide_d_hill_maps.gif" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/wide_d_hill_line_plot.png" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/narrow_d_hill_maps.gif" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/narrow_d_hill_line_plot.png" width=50% height=50%>
+</p>
+
 
 #### From Ordinary Differential Equations to Cellular Automata
 
