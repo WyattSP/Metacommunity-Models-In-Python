@@ -199,6 +199,47 @@ The below two videos illustrate the role of climate variance on population dynam
 
 Depending upon the selected niche breadth the effects of time step selection will have different results.
 
+Hill numbers represent a simple framework to assess abundance weighted community diversity, parameterized by q-orders, that give varying degrees of weight to rare versus common species depending on the value of q (Hill 1973; Chao et al. 2014). For q = 0, all abundance weighted community diversity values will equal 1, with the $N^{0}$ Hill number giving no preference to rare versus common taxa. This also yields a maximum Hill number for a community for all other chosen values of q. On the opposite end of the spectrum for q = 2 (or q $&#8594 &#8734$) a minimum Hill number will be produced that gives larger weight on common versus rare species. For a community that has an equal number of species at the same abundance, $N^{0} = N^{2}$, and for communities with a single dominant species $N^{0} >> N^{2}$.
+
+As a way to compare evenness between communities, a normalized vector can be defined between the maximum and minimum Hill numbers within a single community. If a community is perfectly even, the vertical component of the vector will be 0, while if the community is perfectly uneven, the vertical component of the vector will approach 1 (similar to Chao and Ricotta 2019).
+
+As a means to compare species evenness between the different simulations, the normalized vector comparing $N^{0} - N^{2}$ was calculated for each time step in the simulations for each individual plot (P = 165). The relative number of patches with greater evenness were then compared between the simulations for each time step and plotted as a line plot (Normalized Proportion of $D^{0} - D^{2}$ between High - Low Variance). For any time step with a value > 0.5, the high-variance simulation had a higher proportion of uneven patches as compared to the low variance simulation.  
+
+a > b; a is more uneven
+
+```math
+D^{q} = (\sum{p_{i}^{q}})^{1/(q-1)}; q > 0, q \ne 1
+```
+
+
+```math
+D^{1} = lim^{q} D = exp^{-\sum{p_{i}logp_{i}}}
+```
+
+<p align="center">
+  <img src="./main/images/wide_d_hill_maps.gif" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/wide_d_hill_line_plot.png" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/narrow_d_hill_maps.gif" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/narrow_d_hill_line_plot.png" width=50% height=50%>
+</p>
+
+#### Diversity Dynamics Under Alternative Step Size
+
+#### From Ordinary Differential Equations to Cellular Automata
+
+#### Step Size as a Parameter
+
+Based upon work by Vasseur and Yodiz (2004) and Cuddinghton and Yodiz (1999), changes within the structure of temporal autocorrelation can have impacts on population dynamics, mainly synchrony and persistence. As such, a better method is to alter the Fourier-coefficients for the high-frequency domains you want to exclude. Methodologically, this involves converting the time series into the frequency domain and setting the amplitudes of the Fourier-coefficients above a certain frequency threshold to zero. This ensures that the power and autocorrelation of periodic phase-coherent and quasi-periodic phase-incoherent processes are maintained in the low-frequency domains.
+
 #### Broad Niche Breadth
 
 For a broad niche ($\sigma >= 2$) alpha and gamma diversity appear almost indistinguishable under stabilizing and equal interactions with variable time steps. However, as illustrated within the second figure, species evenness increases under lower variance.
@@ -218,50 +259,6 @@ The effects of time step choice has much more pronounced impacts under narrow ni
 <p align="center">
   <img src="./main/images/Slide10.png" width=50% height=50%>
 </p>
-
-### Discussion
-
-#### Diversity Dynamics Under Alternative Step Size
-
-Hill numbers represent a simple framework to assess abundance weighted community diversity, parameterized by q-orders, that give varying degrees of weight to rare versus common species depending on the value of q (Hill 1973; Chao et al. 2014). For q = 0, all abundance weighted community diversity values will equal 1, with the N^{0} Hill number giving no preference to rare versus common taxa. This also yields a maximum Hill number for a community for all other chosen values of q. On the opposite end of the spectrum for q = 2 (or q $&#8594 &#8734$) a minimum Hill number will be produced that gives larger weight on common versus rare species. For a community that has an equal number of species at the same abundance, $N^{0} = N^{2}$, and for communities with a single dominant species $N^{0} >> N^{2}$.
-
-As a way to compare evenness between communities, a normalized vector can be defined between the maximum and minimum Hill numbers within a single community. If a community is perfectly even, the vertical component of the vector will be 0, while if the community is perfectly uneven, the vertical component of the vector will approach 1 (similar to Chao and Ricotta 2019).
-
-As a means to compare species evenness between the different simulations, the normalized vector comparing $N^{0} - N^{2}$ was calculated for each time step in the simulations for each individual plot (P = 165). The relative number of patches with greater evenness were then compared between the simulations for each time step and plotted as a line plot (Normalized Proportion of $D^{0} - D^{2}$ between High - Low Variance). For any time step with a value > 0.5, the high-variance simulation had a higher proportion of uneven patches as compared to the low variance simulation.  
-
-a > b; a is more uneven
-
-```math
-D^{q} = \sum{(p_{i}^{q})^{1/(q-1)}}; q > 0, q != 1
-```
-
-```math
-D^{1} = lim^{q} D = exp{-\sum{p_{i}logp_{i}}}
-```
-
-<p align="center">
-  <img src="./main/images/wide_d_hill_maps.gif" width=50% height=50%>
-</p>
-
-<p align="center">
-  <img src="./main/images/wide_d_hill_line_plot.png" width=50% height=50%>
-</p>
-
-<p align="center">
-  <img src="./main/images/narrow_d_hill_maps.gif" width=50% height=50%>
-</p>
-
-<p align="center">
-  <img src="./main/images/narrow_d_hill_line_plot.png" width=50% height=50%>
-</p>
-
-
-#### From Ordinary Differential Equations to Cellular Automata
-
-#### Step Size as a Parameter
-
-Based upon work by Vasseur and Yodiz (2004) and Cuddinghton and Yodiz (1999), changes within the structure of temporal autocorrelation can have impacts on population dynamics, mainly synchrony and persistence. As such, a better method is to alter the Fourier-coefficients for the high-frequency domains you want to exclude. Methodologically, this involves converting the time series into the frequency domain and setting the amplitudes of the Fourier-coefficients above a certain frequency threshold to zero. This ensures that the power and autocorrelation of periodic phase-coherent and quasi-periodic phase-incoherent processes are maintained in the low-frequency domains.
-
 ### Conclusions
 
 Time step choice can have dramatic effects on simulation dynamics and community properties under different parameter combinations. Just as with any parameter chosen within these models, time step needs to be carefully considered as it can dramatically change community properties throughout the duration of the simulation, species evenness, and geographic locations of speciation and extinction events.
