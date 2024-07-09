@@ -454,7 +454,7 @@ axs.fill_between(range(0, len(results_100)),0.5, 1, where = porp/165 > 0.5,fc='b
 axs.fill_between(range(0, len(results_100)),0, 0.5, where = porp/165 < 0.5,fc='green', alpha=0.1)
 axs.xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
 axs.xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
-axs.text(0, 0.7,'Low Variance is Even')
+axs.text(0, 0.7,'Low Variance is More Even')
 axs.text(390, 0.3,'High Variance is More Even')
 axs.set_title("Normalized Proportion of $\Delta D^{0} - D^{2}$ between High - Low Variance")
 fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/wide_d_hill_line_plot.png', format='png', dpi=300, transparent=False)
