@@ -255,8 +255,10 @@ print(end-start)
 # Calculate Comm Metrics #
 ##########################
 
-gamma = MC_Properies_Functions.gamma_diversity(results_100)
-alpha = MC_Properies_Functions.alpha_richness(results_100)
+n_gamma = MC_Properies_Functions.gamma_diversity(n_results)
+n_alpha = MC_Properies_Functions.alpha_richness(n_results)
+n_gamma_100 = MC_Properies_Functions.gamma_diversity(n_results_100)
+n_alpha_100 = MC_Properies_Functions.alpha_richness(n_results_100)
 
 # Hill Numbers
 # Get mean hill numbers between all patchs? 
@@ -280,9 +282,9 @@ MCME_Plot_Functions.plot_hill_difference_map(delta_ls_100, Clim_array, coord_ind
 #########################
 
 # Plot of gamma and alpha diversity
-x = np.arange(0,len(alpha))
-plt.plot(x, gamma, label = "gamma")
-plt.plot(x, alpha, c = "green", label = "alpha")
+x = np.arange(0,len(n_alpha_100))
+plt.plot(x, n_gamma_100, label = "gamma")
+plt.plot(x, n_alpha_100, c = "green", label = "alpha")
 plt.legend(loc="upper left")
 
 
@@ -516,28 +518,110 @@ imageio.mimsave("/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.pe
 #     NARROW    #
 #################
 dsum_hv_narrow = np.zeros(len(n_results))
+hv_non_z_count = np.zeros(len(n_results))
 dsum_lv_narrow = np.zeros(len(n_results))
-for i in range(0, len(results)):
+lv_non_z_count = np.zeros(len(n_results))
+porp_narrow = np.zeros(len(n_results))
+for i in range(0, len(n_results)):
     a = MC_Properies_Functions.compare_hill_difference(n_results[i], [0,2], 1, False)
     b = MC_Properies_Functions.compare_hill_difference(n_results_100[i], [0,2], 1, False)
-    dsum_hv_narrow[i] = sum(a[~np.isnan(a)])
-    dsum_lv_narrow[i] = sum(b[~np.isnan(b)])
+    a_c = a[~np.isnan(a)]
+    b_c = b[~np.isnan(b)]
+    dsum_hv_narrow[i] = sum(a_c)
+    dsum_lv_narrow[i] = sum(b_c)
+    hv_non_z_count[i] = len(a_c)
+    lv_non_z_count[i] = len(b_c)
+    c = a-b
+    porp_narrow[i] = len(c[c > 0])
 # Lower y-values indicates increased evenness
 # 100 kya variance is consistenly more even
 ##########################
 fig, axs = plt.subplots(1, 1, figsize=(12, 8))
 plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
-axs.plot(range(0, len(n_results)), dsum_hv_narrow/165, c = "orange")
-axs.plot(range(0, len(n_results_100)), dsum_lv_narrow/165, c = "blue")
+axs.plot(range(0, len(n_results)), dsum_hv_narrow/hv_non_z_count, c = "orange")
+axs.plot(range(0, len(n_results_100)), dsum_lv_narrow/lv_non_z_count, c = "blue")
 axs.xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
 axs.xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
-axs.text(0, 0.445,'Relatively More Even')
-axs.text(0, 0.625,'Relatively More Uneven')
+axs.text(0, 0.245,'Relatively More Even')
+axs.text(0, 0.675,'Relatively More Uneven')
 axs.set_xlabel("Thousand Years")
 axs.set_ylabel('$\Delta D^{0} - D^{2}$')
 axs.set_title("$\Delta D^{0} - D^{2}$ under Wide Niche and Stabalizing Interactions")
 fig.legend(labels=['4 kya Variance', '100 kya Butterworth Filtered Variance'], loc='lower right', 
            shadow=False, ncol=1, bbox_to_anchor=(0.89, 0.14))
-fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/delta_hill_narrow.png', format='png', dpi=300, transparent=False)
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/delta_hill_narrow_2lineplot.png', format='png', dpi=300, transparent=False)
+
+fig, axs = plt.subplots(1, 1, figsize=(12, 8))
+axs.plot(range(0, len(n_results_100)), porp_narrow/165, c = "black")
+axs.set_ylim(0.0,1.0)
+axs.axhline(0.5,linestyle=':', c = 'r')
+axs.fill_between(range(0, len(n_results_100)),0.5, 1, where = porp_narrow/165 > 0.5,fc='blue', alpha=0.1)
+axs.fill_between(range(0, len(n_results_100)),0, 0.5, where = porp_narrow/165 < 0.5,fc='green', alpha=0.1)
+axs.xaxis.set_ticks([0, 100, 200, 300, 400, 500]) 
+axs.xaxis.set_ticklabels(["2000", "1600", "1200", "800", "400", "0"])
+axs.text(0, 0.55,'Low Variance is More Even')
+axs.text(390, 0.45,'High Variance is More Even')
+axs.set_title("Normalized Proportion of $\Delta D^{0} - D^{2}$ between High - Low Variance")
+fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/figures/narrow_d_hill_line_plot.png', format='png', dpi=300, transparent=False)
+
+#########################################
+#            Gif of anomaly             #
+#########################################
+from matplotlib.colors import CenteredNorm
+# Coordinates for plotting
+lon_in = [Clim_array.Lon[i] for i in coord_index]
+lat_in = [Clim_array.Lat[i] for i in coord_index]
+for s in range(0,500):
+    a = MC_Properies_Functions.compare_hill_difference(n_results[s], [0,2], 1, False)
+    b = MC_Properies_Functions.compare_hill_difference(n_results_100[s], [0,2], 1, False)
+    fig, axs = plt.subplots(1, 3, figsize=(12, 10))
+    # Loop through columns for plotting
+    in_data_a = pd.DataFrame({"Lon": lon_in, "Lat": lat_in, "dH": a})
+    in_data_a = in_data_a.pivot_table(index='Lat', columns='Lon', values='dH')
+    in_data_b = pd.DataFrame({"Lon": lon_in, "Lat": lat_in, "dH": b})
+    in_data_b = in_data_b.pivot_table(index='Lat', columns='Lon', values='dH')
+    in_data_c = pd.DataFrame({"Lon": lon_in, "Lat": lat_in, "dH": -(a-b)})
+    in_data_c = in_data_c.pivot_table(index='Lat', columns='Lon', values='dH')
+    axs[0].imshow(in_data_a, cmap='viridis', interpolation='nearest')
+    axs[1].imshow(in_data_b, cmap='viridis', interpolation='nearest')
+    axs[2].imshow(in_data_c, cmap='seismic', interpolation='nearest', norm=CenteredNorm())
+    axs[0].set_title("Q Order Difference High Variance")
+    axs[1].set_title("Q Order Difference Low Variance")
+    axs[2].set_title("Q Order Difference High - Low Variance")
+    axs[0].set_ylim(26.5,-0.5)
+    axs[1].set_ylim(26.5,-0.5)
+    axs[2].set_ylim(26.5,-0.5)
+    axs[0].set_xlim(-0.5,12.5)
+    axs[1].set_xlim(-0.5,12.5)
+    axs[2].set_xlim(-0.5,12.5)
+    fig.savefig('/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/narrow_d_hill_maps/%d_step.png' % s)
+
+# Create Gif
+import os
+import re
+path = "/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/narrow_d_hill_maps/"
+# Import files
+filenames = os.listdir(path)
+# Remove the DS Store
+if '.DS_Store' in filenames:
+  filenames.remove('.DS_Store')
+# Sort
+numeric_files = [int(re.match("[0-9]+", x)[0]) for x in filenames]
+file_index = np.argsort(numeric_files)
+file_index = [i for i in file_index]
+# Organize files
+filnames_sorted = [path + filenames[i] for i in file_index]
+
+import imageio
+images = []
+for filename in filnames_sorted:
+    try:
+        images.append(imageio.imread(filename))
+    except:
+        continue
+imageio.mimsave("/Users/wyattpetryshen/Library/CloudStorage/GoogleDrive-wyatt.petryshen@yale.edu/My Drive/Conferences/WBF 2024/narrow_d_hill_maps.gif", images)
+
+
+
 
 
