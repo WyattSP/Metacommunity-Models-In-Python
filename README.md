@@ -214,7 +214,9 @@ D^{q} = (\sum{p_{i}^{q}})^{1/(q-1)}; q > 0, q \ne 1
 D^{1} = lim^{q} D = exp^{-\sum{p_{i}logp_{i}}}
 ```
 
-For red squares in the third panel (high variance - low variance < 0), the low variance simulation is more uneven. For blue squares in the third panel (high variance - low variance > 0), the high variance simulation is more uneven.
+For red squares in the third panel (high variance - low variance < 0) the low variance simulation is more uneven. For blue squares in the third panel (high variance - low variance > 0) the high variance simulation is more uneven. White squares have zero difference between the high versus low variance evenness. 
+
+#### Broad Niche Breadth
 
 <p align="center">
   <img src="./main/images/wide_d_hill_maps.gif" width=50% height=50%>
@@ -223,6 +225,8 @@ For red squares in the third panel (high variance - low variance < 0), the low v
 <p align="center">
   <img src="./main/images/wide_d_hill_line_plot.png" width=50% height=50%>
 </p>
+
+#### Narrow Niche Breadth
 
 <p align="center">
   <img src="./main/images/narrow_d_hill_maps.gif" width=50% height=50%>
@@ -240,25 +244,6 @@ For red squares in the third panel (high variance - low variance < 0), the low v
 
 Based upon work by Vasseur and Yodiz (2004) and Cuddinghton and Yodiz (1999), changes within the structure of temporal autocorrelation can have impacts on population dynamics, mainly synchrony and persistence. As such, a better method is to alter the Fourier-coefficients for the high-frequency domains you want to exclude. Methodologically, this involves converting the time series into the frequency domain and setting the amplitudes of the Fourier-coefficients above a certain frequency threshold to zero. This ensures that the power and autocorrelation of periodic phase-coherent and quasi-periodic phase-incoherent processes are maintained in the low-frequency domains.
 
-#### Broad Niche Breadth
-
-For a broad niche ($\sigma >= 2$) alpha and gamma diversity appear almost indistinguishable under stabilizing and equal interactions with variable time steps. However, as illustrated within the second figure, species evenness increases under lower variance.
-
-<p align="center">
-  <img src="./main/images/Slide8.png" width=50% height=50%>
-</p>
-
-<p align="center">
-  <img src="./main/images/Slide9.png" width=50% height=50%>
-</p>
-
-#### Narrow Niche Breadth
-
-The effects of time step choice has much more pronounced impacts under narrow niche values with higher rates of speciation (reduced speciation threshold). This figure illustrates the large discrepancy between alpha and gamma diversity between simulations under the 4 kya variance structure versus the 100 kya structure. Species evenness is also increased under the lower variance scenario as above.
-
-<p align="center">
-  <img src="./main/images/Slide10.png" width=50% height=50%>
-</p>
 ### Conclusions
 
 Time step choice can have dramatic effects on simulation dynamics and community properties under different parameter combinations. Just as with any parameter chosen within these models, time step needs to be carefully considered as it can dramatically change community properties throughout the duration of the simulation, species evenness, and geographic locations of speciation and extinction events.
