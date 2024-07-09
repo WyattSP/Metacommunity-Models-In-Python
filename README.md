@@ -206,7 +206,7 @@ As a way to compare evenness between communities, a normalized vector can be def
 As a means to compare species evenness between the different simulations, the normalized vector comparing $N^{0} - N^{2}$ was calculated for each time step in the simulations for each individual plot (P = 165). The relative number of patches with greater evenness were then compared between the simulations for each time step and plotted as a line plot (Normalized Proportion of $D^{0} - D^{2}$ between High - Low Variance). For any time step with a value > 0.5, the high-variance simulation had a higher proportion of uneven patches as compared to the low variance simulation.  
 
 <p align="center">
-  <img src="./main/images/hill_diff_fig.gif" width=50% height=50%>
+  <img src="./main/images/hill_diff_fig.png" width=50% height=50%>
 </p>
 
 
