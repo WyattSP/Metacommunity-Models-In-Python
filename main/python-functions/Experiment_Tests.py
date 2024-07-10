@@ -173,13 +173,13 @@ results, niche_opt, alpha_matrix, phylogeny, divergence_time, patch_origin = MCM
                                                                    species_number_ini = 25,
                                                                    max_growth_r = 5,
                                                                    speciation_threshold = 0.25,
-                                                                   alpha_matrix_ini = alpha_matrix_stabalizing,
+                                                                   alpha_matrix_ini = alpha_matrix_equal,
                                                                    distance_matrix = distance_matrix,
                                                                    climate_input = climate_4kya,
                                                                    niche_optimum_ini = niche_optimum_ini_4,
                                                                    dispersal_rate_ini = 0.1,
                                                                    niche_breadth_ini = 2.5,
-                                                                   end_member = "stabalizing")
+                                                                   end_member = "equal")
 
 
 # 100 kya forcings wide
@@ -255,8 +255,8 @@ print(end-start)
 # Calculate Comm Metrics #
 ##########################
 
-n_gamma = MC_Properies_Functions.gamma_diversity(n_results)
-n_alpha = MC_Properies_Functions.alpha_richness(n_results)
+n_gamma = MC_Properies_Functions.gamma_diversity(results)
+n_alpha = MC_Properies_Functions.alpha_richness(results)
 n_gamma_100 = MC_Properies_Functions.gamma_diversity(n_results_100)
 n_alpha_100 = MC_Properies_Functions.alpha_richness(n_results_100)
 
@@ -282,9 +282,9 @@ MCME_Plot_Functions.plot_hill_difference_map(delta_ls_100, Clim_array, coord_ind
 #########################
 
 # Plot of gamma and alpha diversity
-x = np.arange(0,len(n_alpha_100))
-plt.plot(x, n_gamma_100, label = "gamma")
-plt.plot(x, n_alpha_100, c = "green", label = "alpha")
+x = np.arange(0,len(n_alpha))
+plt.plot(x, n_gamma, label = "gamma")
+plt.plot(x, n_alpha, c = "green", label = "alpha")
 plt.legend(loc="upper left")
 
 

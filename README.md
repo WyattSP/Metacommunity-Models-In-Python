@@ -240,6 +240,20 @@ For red squares in the third panel (high variance - low variance < 0) the low va
   <img src="./main/images/narrow_d_hill_line_plot.png" width=50% height=50%>
 </p>
 
+#### Comparison between Broad and Narrow Niche under Stabilizing and Equal Interactions
+
+<p align="center">
+  <img src="./main/images/butter_alphagamma_equal_v1.png" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/butter_alphagamma_stabalizing_v1.png" width=50% height=50%>
+</p>
+
+<p align="center">
+  <img src="./main/images/hill_comparison_v1.png" width=50% height=50%>
+</p>
+
 #### Diversity Dynamics Under Alternative Step Size
 
 #### From Ordinary Differential Equations to Cellular Automata
