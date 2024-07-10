@@ -247,7 +247,7 @@ For red squares in the third panel (high variance - low variance < 0) the low va
 </p>
 
 <p align="center">
-  <img src="./main/images/butter_alphagamma_stabalizing_v1.png" width=50% height=50%>
+  <img src="./main/images/butter_alphagamma_stabalizing_v1-2.png" width=50% height=50%>
 </p>
 
 <p align="center">
