@@ -158,7 +158,7 @@ def get_immigration(M, S, distance_matrix, emigrants, resistance, z):
             # potential_patch = np.delete(np.arange(0, M), k)
             dispersal_dist_k = distance_matrix[k,:]
             # Get dispersal probabilities based on exponential function
-            # Note that this sums to unity such that dispersal is guarenteed 
+            # Note that this sums to unity such that dispersal is guarenteed
             dispersal_probability = get_dispersal_probability(dispersal_dist_k, resistance)
             # Disperse based on distance
             # Draws sets max number of species leaving patch
@@ -172,7 +172,7 @@ def get_immigration(M, S, distance_matrix, emigrants, resistance, z):
             for l in range(len(img_ind)):
                 # patch of immigrant, species ID, number of immigrants, emmigrating trait value
                 trait_flow.append([img_ind[l], i, img_count[l], z[k, i]])
-                
+
     # add check that emmigration == immigration
     if np.sum(emigrants) != np.sum(immigrants) or np.sum(emigrants) != sum([i[2] for i in trait_flow]):
         print("Error: emigration does not equal immigration")
@@ -214,7 +214,7 @@ def get_speciation(N, speciation_rate):
     ancestor_species = new_species[new_species != -999]
     return(ancestor_species)
 
-def get_allopatric_speciation_v2(N, z, speciation_threshold, g):
+def get_allopatric_mixed_speciation_v2(N, z, speciation_threshold, g):
     # Need to get out the patch location and ID of ancestor
     # list to save new species
     ancestor_species = list()
@@ -243,36 +243,55 @@ def get_allopatric_speciation_v2(N, z, speciation_threshold, g):
                 ancestor_species.append(l)
     return(ancestor_species)
 
-def get_allopatric_speciation(N, z, speciation_threshold):
-    # Need to get out the patch location and ID of ancestor
-    # list to save new species
+def get_time_divergence_speciation(N, evo_trait, speciation_threshold, g):
+    # New Function for true allopatric speciation
+    # Input is a time-apart tracker (evo_trait) that results in speciation over a threshold
+    # List to save new species
     ancestor_species = list()
-    # Get patches that are occupied
     for s in range(z.shape[1]):
-        # Find patches where species abundance above zero
+        # Find patches where species abundance is above zero
         sp_non_zero = np.where(N[:,s] != 0)[0]
-        # Get niche values
-        in_v = z.copy()[sp_non_zero,s]
-        in_len = len(in_v)
-        # Get pairwise trait values
-        # This works but is inefficient since you are calculating everything twice 
-        ta = np.array(np.meshgrid(in_v,in_v)).reshape(2,in_len*in_len).T
-        # Indices
-        tb = np.array(np.meshgrid(sp_non_zero,sp_non_zero)).reshape(2,in_len*in_len).T
-        # Get mask
-        tc = [abs(i[0] - i[1]) > speciation_threshold for i in ta] 
-        # Indices over threshold
-        td = tb[tc]
+        # Pass on speciation if return zero
+        if len(sp_non_zero) == 0:
+            continue
+        # Get evolution time tracker traits
+        in_env_trait = evo_trait.copy[sp_non_zero, s]
+        # Return time-step if in_env_trait is zero length for some reason
+        if len(in_env_trait) == 0:
+            print(g, s)
+        # Find index for species outside threshold
+        tc = [i > speciation_threshold for i in in_env_trait]
+        # Patches with species i over threshold
+        td = sp_non_zero[tc]
         if len(td) == 0:
             continue
         else:
-            n_spec_indc = np.unique(np.sort(td, axis=1).view(','.join([td.dtype.char]*2))).view(td.dtype).reshape(-1, 2)
-
-            # Put patch and species ID into a list
-            n_sp = [[i, s] for i in np.unique(n_spec_indc)]
+            n_sp = [[i, s] for i in td]
             for l in n_sp:
                 ancestor_species.append(l)
     return(ancestor_species)
+
+def evolve_time_divergence(evo_trait, immigrants):
+    # Take in evo_traits and immigrants and update
+    # Set immigrants to binary; -1 if immigrants, 1 if no immigrants
+    transition_ar = np.where(immigrants > 0, -1, 1)
+    # Add single values to evo_trait and multiply by negative
+    # Muliply evo_trait by binary matrix
+    evo_trait *= transition_ar
+    # Add +1 to trait divergence; adding -1 does nothing to negative values
+    evo_trait += transition_ar
+    # Set all negative values to zero
+    evo_trait[evo_trait < 0] = 0
+    # Return updated evo_trait
+    return(evo_trait)
+
+def add_evo_trait_columns(evo_trait, z):
+    # Copy new z shape
+    new_evo_trait = np.zeros(z.shape)
+    # Fill with old evolution trait values
+    new_evo_trait[0:evo_trait.shape[0],0:evo_trait.shape[1]] = evo_trait
+    # Return new evolution traits
+    return(evo_trait)
 
 def add_new_allopatric_species(N, patch_ancestor, g):
     # Convert every element in patch_ancestor to a new species
@@ -308,7 +327,7 @@ def save_ancestory(N, patch_ancestor, current_simulation_time_step):
     current_step = [current_simulation_time_step] * n_anc
     dec_out = np.vstack((previous_step,current_step))
     return(anc_out, dec_out)
- 
+
 
 def add_new_species(N, anc, g):
     in_species = anc
@@ -511,7 +530,7 @@ def trait_frequnecy_homonization(z, N, trait_flow):
     # Loop over every patch
     for p in range(N.shape[0]):
         # Iterate over each species to homogenize in each patch
-        # In trait flow find matching patch and species 
+        # In trait flow find matching patch and species
         # You do not need to homogenize if no immigration occurred
         imig = [i for i in trait_flow if i[0] == p]
         if len(imig) == 0:
@@ -522,7 +541,7 @@ def trait_frequnecy_homonization(z, N, trait_flow):
             z_z =  sum([k[2] * k[3] for k in imig if k[1] == s])
             N_tot = sum([k[2] for k in imig if k[1] == s])
             new_z = round(z_z / N_tot, 3)
-            # Need to find number of old species that will contribute variation 
+            # Need to find number of old species that will contribute variation
             if N[p,s] <= N_tot:
                 updated_z[p,s] = new_z
             else:

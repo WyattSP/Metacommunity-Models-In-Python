@@ -96,6 +96,9 @@ def MCME(time_in,
     # Step Counter
     counter = 0 # Remomve for Cluster
 
+    # Set evolution trait tracker
+    evo_trait = np.zeros(z.shape)
+
     #########################
     #     Seeding Model     #
     #########################
@@ -240,19 +243,16 @@ def MCME(time_in,
         # Trait frequency homogenization
         z = MCME_Functions.trait_frequnecy_homonization(z, N, trait_flow)
 
-        ###################
-        #    Speciation   #
-        ###################
+        # Time divergence trait evolution
+        # Set time divergence trait to zero if immigrants reach patch; otherwise add one
+        # This would likely work but need to make sure it's not doing anything strange (ds.copy)
+        evo_trait = MCME_Functions.evolve_time_divergence(evo_trait, immigrants)
 
-        ###################
-        #    Sympatric   #
-        ###################
-        #ancestor_species = MCME_Functions.get_speciation(N, speciation_rate)
-
-        ###################
-        #    Allopatric   #
-        ###################
-        new_patch_species = MCME_Functions.get_allopatric_mixed_speciation_v2(N, z, speciation_threshold, g)
+        ###################################
+        #    Time-Divergence Speciation   #
+        ###################################
+        new_patch_species = MCME_Functions.get_time_divergence_speciation(N, evo_trait, speciation_threshold, g)
+        # Still need to reset evo_trait once speciation has occurred
 
         # Save Ancestory
         if len(new_patch_species) > 0:
@@ -266,6 +266,9 @@ def MCME(time_in,
 
             # Update interaction coefficients
             z, alpha_matrix = MCME_Functions.update_interactions(z, alpha_matrix, anc, end_member)
+
+            # Update evo_trait / append new columns
+            evo_trait = MCME_Functions.add_evo_trait_columns(evo_trait, z)
 
             # Redefine S
             S = N.shape[1]
