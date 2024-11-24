@@ -11,7 +11,7 @@ import numpy as np
 #import scipy.sparse as sparse
 #from scipy.spatial.distance import pdist, squareform
 import geopy.distance
-
+import scipy as scipy
 
 ############################
 # Initialization Functions #
@@ -179,6 +179,31 @@ def get_immigration(M, S, distance_matrix, emigrants, resistance, z):
 
     return(immigrants, trait_flow)
 
+############################
+#    Ecology Functions     #
+############################
+# Functions for numericla integration
+
+def density_dependent_interactions(t, Y, alpha_in, r_growth):
+    # Can only input single habitat patch
+    # Note that the N has been removed from the lambda_vector argument as this will be iterated through using scipy
+    density = Y @ alpha_in
+    lambda_out = r_growth * (1.0 / (1.0 + density))
+    return(lambda_out)
+
+def RK45_numerical_integration(Y0, alpha_in, r_growth):
+    # Input will be an (M, S) matrix
+    RK_out = np.zeros(Y0.shape)
+    for i in range(len(Y0)):
+        patch = Y0[i,:]
+        r_growth_patch = r_growth[i,:]
+        # Run RK45
+        X = scipy.integrate.solve_ivp(density_dependent_interactions, [0,100], patch, method="RK45", dense_output = True, args = (alpha_in, r_growth_patch, ))
+        # Save last time slice to matrix
+        RK_out[i,:] = X.y[:,-1]
+    # Species density vector to return back to main loop
+    RK_out[RK_out < 0.0] = 0.0
+    return(RK_out)
 
 ############################
 #  Speciation Functions    #
@@ -243,7 +268,7 @@ def get_allopatric_mixed_speciation_v2(N, z, speciation_threshold, g):
                 ancestor_species.append(l)
     return(ancestor_species)
 
-def get_time_divergence_speciation(N, evo_trait, speciation_threshold, g):
+def get_time_divergence_speciation(N, evo_trait, speciation_threshold, g, z):
     # New Function for true allopatric speciation
     # Input is a time-apart tracker (evo_trait) that results in speciation over a threshold
     # List to save new species
@@ -255,7 +280,7 @@ def get_time_divergence_speciation(N, evo_trait, speciation_threshold, g):
         if len(sp_non_zero) == 0:
             continue
         # Get evolution time tracker traits
-        in_env_trait = evo_trait.copy[sp_non_zero, s]
+        in_env_trait = evo_trait[sp_non_zero, s]
         # Return time-step if in_env_trait is zero length for some reason
         if len(in_env_trait) == 0:
             print(g, s)
@@ -277,6 +302,7 @@ def evolve_time_divergence(evo_trait, immigrants):
     transition_ar = np.where(immigrants > 0, -1, 1)
     # Add single values to evo_trait and multiply by negative
     # Muliply evo_trait by binary matrix
+    # Toogle *= on/off if homonization is not instant
     evo_trait *= transition_ar
     # Add +1 to trait divergence; adding -1 does nothing to negative values
     evo_trait += transition_ar
@@ -291,7 +317,7 @@ def add_evo_trait_columns(evo_trait, z):
     # Fill with old evolution trait values
     new_evo_trait[0:evo_trait.shape[0],0:evo_trait.shape[1]] = evo_trait
     # Return new evolution traits
-    return(evo_trait)
+    return(new_evo_trait)
 
 def add_new_allopatric_species(N, patch_ancestor, g):
     # Convert every element in patch_ancestor to a new species

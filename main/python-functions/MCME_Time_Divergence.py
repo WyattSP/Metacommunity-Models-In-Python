@@ -31,6 +31,8 @@ def MCME(time_in,
     #########################
     #     Function inputs   #
     #########################
+    # Toogle RK45 solver
+    RK45 = False
 
     # Import model parameters
     seed_time = time_in[0]
@@ -88,6 +90,8 @@ def MCME(time_in,
     den_save = list()
     niche_opt = list()
     species_patch_origin = list()
+    evo_trait_save = list()
+    alpha_matrix_all = list()
 
     # Matrix storing evolutionary history
     ancestory = list()
@@ -203,19 +207,19 @@ def MCME(time_in,
         #     Selection     #
         #####################
         # i.e Ecology
-
         # Density-independent Growth
         # z = species environmental optimum; x = environment
         r_ix = r * np.exp(-((z - x) / (2.0 * sigma_niche)) ** 2.0)
 
-        # Competition
-        density = N @ alpha_matrix
-
-        # Species density change
-        lambda_vector = r_ix * N * (1.0 / (1.0 + density))
-        lambda_vector[lambda_vector < 0.0] = 0.0
-        # It would be interesting to try an RK4 algorithm to solve for lambda_vector
-        # However, would then pulling values from a poisson distribution negate accuracy improvments in RK4 versus Euler?
+        if RK45 is True:
+            lambda_vector = MCME_Functions.RK45_numerical_integration(N, alpha_matrix, r_ix)
+        else:
+            # Remainder of selection could have alternative dt to main simulation
+            # Competition
+            density = N @ alpha_matrix
+            # Species density change
+            lambda_vector = r_ix * N * (1.0 / (1.0 + density))
+            lambda_vector[lambda_vector < 0.0] = 0.0
 
         # Random value pulled from poisson distribution
         N = [np.random.poisson(l) for l in lambda_vector.flatten()]
@@ -242,7 +246,6 @@ def MCME(time_in,
 
         # Trait frequency homogenization
         z = MCME_Functions.trait_frequnecy_homonization(z, N, trait_flow)
-
         # Time divergence trait evolution
         # Set time divergence trait to zero if immigrants reach patch; otherwise add one
         # This would likely work but need to make sure it's not doing anything strange (ds.copy)
@@ -251,7 +254,7 @@ def MCME(time_in,
         ###################################
         #    Time-Divergence Speciation   #
         ###################################
-        new_patch_species = MCME_Functions.get_time_divergence_speciation(N, evo_trait, speciation_threshold, g)
+        new_patch_species = MCME_Functions.get_time_divergence_speciation(N, evo_trait, speciation_threshold, g, z)
         # Still need to reset evo_trait once speciation has occurred
 
         # Save Ancestory
@@ -295,6 +298,8 @@ def MCME(time_in,
             env_save.append(x) # Save environment at time-step
             den_save.append(distance_matrix)  # Save distance between patchs
             niche_opt.append(z) # Save niche optimum
+            evo_trait_save.append(evo_trait) # Save evo trait tracker
+            alpha_matrix_all.append(alpha_matrix) # Save alpha matrix
 
         #print(counter)
     #print("Simulation End: %d" % counter) # Remomve for Cluster
@@ -305,5 +310,5 @@ def MCME(time_in,
     # Removed den_save from output
     # Removed lambda_save from output
     # Removed env_save from outuput
-    return(N_save, niche_opt, alpha_matrix, ancestory, divergence_time, species_patch_origin)
+    return(N_save, niche_opt, alpha_matrix_all, ancestory, divergence_time, species_patch_origin, evo_trait_save)
     #return() # Return for profiling; Delete for complete model
